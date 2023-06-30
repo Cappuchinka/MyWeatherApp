@@ -23,21 +23,21 @@ import ru.kapuchinka.myweatherapp.viewmodel.WeatherViewModel
 
 class MainActivity : ComponentActivity() {
     private lateinit var weatherViewModel: WeatherViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         weatherViewModel = ViewModelProvider(this).get(WeatherViewModel::class.java)
+
         setContent {
             MyWeatherAppTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Column {
                         Greeting("Voronezh", weatherViewModel)
-                        WeatherIcon(iconUrl = "https://openweathermap.org/img/w/01d.png", size = 64.dp)
                     }
-
                 }
             }
         }
@@ -52,11 +52,17 @@ fun Greeting(city: String, weatherViewModel: WeatherViewModel, modifier: Modifie
 
     val weatherResponse = weatherViewModel.weatherResponse.value
     val tempMax = weatherResponse?.main?.temp_max
+    val weatherIconUrl = weatherViewModel.weatherIcon.value
 
-    Text(
-        text = "Hello $tempMax!",
-        modifier = modifier
-    )
+    Column {
+        Text(
+            text = "Hello $tempMax!",
+            modifier = modifier
+        )
+        if (!weatherIconUrl.isNullOrBlank()) {
+            WeatherIcon(iconUrl = "https://openweathermap.org/img/w/${weatherIconUrl}.png", size = 64.dp)
+        }
+    }
 }
 
 @Composable
@@ -73,3 +79,5 @@ fun WeatherIcon(iconUrl: String, size: Dp) {
         modifier = Modifier.size(size)
     )
 }
+
+

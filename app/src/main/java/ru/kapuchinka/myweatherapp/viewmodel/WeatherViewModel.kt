@@ -11,10 +11,12 @@ class WeatherViewModel : ViewModel() {
     private val weatherRepository = WeatherRepository()
 
     val weatherResponse = mutableStateOf<WeatherResponse?>(null)
+    val weatherIcon = mutableStateOf<String?>(null)
 
     fun getWeatherByCity(city: String) {
         viewModelScope.launch {
             weatherResponse.value = weatherRepository.getWeatherByCity(city, APPID, UNITS)
+            weatherIcon.value = weatherResponse.value?.weather?.get(0)?.icon
         }
     }
 
