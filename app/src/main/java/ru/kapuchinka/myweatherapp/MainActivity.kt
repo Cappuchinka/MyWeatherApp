@@ -42,7 +42,7 @@ fun Greeting(city: String, weatherViewModel: WeatherViewModel, modifier: Modifie
     }
 
     val weatherResponse = weatherViewModel.weatherResponse.value
-    val tempMax = weatherResponse?.list?.getOrNull(5)?.main?.temp_max
+    val tempMax = weatherResponse?.main?.temp_max
 
     Text(
         text = "Hello $tempMax!",

@@ -14,13 +14,12 @@ class WeatherViewModel : ViewModel() {
 
     fun getWeatherByCity(city: String) {
         viewModelScope.launch {
-            weatherResponse.value = weatherRepository.getWeatherByCity(city, APPID, CNT, UNITS)
+            weatherResponse.value = weatherRepository.getWeatherByCity(city, APPID, UNITS)
         }
     }
 
     companion object {
         private const val APPID = "c50ba949b50e3b521271fb2b6a25f0e5"
-        private const val CNT = 9
         private const val UNITS = "metric"
     }
 }
