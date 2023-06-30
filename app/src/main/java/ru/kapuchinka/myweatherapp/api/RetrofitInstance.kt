@@ -7,7 +7,7 @@ import ru.kapuchinka.myweatherapp.api.service.WeatherApi
 
 object RetrofitInstance {
     private val loggingInterceptor = LoggingInterceptor()
-    private const val BASE_URL = "https://api.openweathermap.org/data/2.5/"
+    private const val BASE_URL = "https://api.openweathermap.org/"
 
     private val okHttpClient by lazy {
         OkHttpClient.Builder()

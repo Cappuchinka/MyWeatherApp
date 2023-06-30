@@ -5,7 +5,7 @@ import retrofit2.http.Query
 import ru.kapuchinka.myweatherapp.api.model.WeatherResponse
 
 interface WeatherApi {
-    @GET("forecast")
+    @GET("data/2.5/forecast")
     suspend fun getWeatherByCity( @Query("units") units: String,
                                   @Query("appid") apiKey: String,
                                   @Query("cnt") count: Int,
