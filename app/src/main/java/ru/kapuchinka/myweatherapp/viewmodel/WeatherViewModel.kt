@@ -20,6 +20,13 @@ class WeatherViewModel : ViewModel() {
         }
     }
 
+    fun getWeatherByLocation(lat: Double, lon: Double) {
+        viewModelScope.launch {
+            weatherResponse.value = weatherRepository.getWeatherByLocation(lat, lon, APPID, UNITS)
+            weatherIcon.value = weatherResponse.value?.weather?.get(0)?.icon
+        }
+    }
+
     companion object {
         private const val APPID = "c50ba949b50e3b521271fb2b6a25f0e5"
         private const val UNITS = "metric"
