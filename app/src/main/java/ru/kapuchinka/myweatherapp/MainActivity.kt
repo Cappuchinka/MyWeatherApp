@@ -1,8 +1,11 @@
 package ru.kapuchinka.myweatherapp
 
 import android.os.Bundle
+import android.Manifest
+import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,19 +18,21 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModelProvider
 import coil.compose.rememberImagePainter
 import coil.transform.CircleCropTransformation
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import ru.kapuchinka.myweatherapp.ui.theme.MyWeatherAppTheme
+import ru.kapuchinka.myweatherapp.utils.permission.RequestPermission
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherViewModel
 
 class MainActivity : ComponentActivity() {
-    private lateinit var weatherViewModel: WeatherViewModel
+    private val weatherViewModel: WeatherViewModel by viewModels()
+    private val context: Context = this
 
+    @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        weatherViewModel = ViewModelProvider(this).get(WeatherViewModel::class.java)
+        weatherViewModel.setContext(this)
 
         setContent {
             MyWeatherAppTheme {
@@ -35,8 +40,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    RequestPermission(permission = Manifest.permission.ACCESS_FINE_LOCATION)
                     Column {
-                        Greeting("Voronezh", weatherViewModel)
+//                        GetWeatherByCity("Moscow", weatherViewModel)
+                        GetWeatherByCurrentLocation(context = context, weatherViewModel = weatherViewModel)
                     }
                 }
             }
@@ -45,18 +52,39 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(city: String, weatherViewModel: WeatherViewModel, modifier: Modifier = Modifier) {
+fun GetWeatherByCity(city: String, weatherViewModel: WeatherViewModel, modifier: Modifier = Modifier) {
     LaunchedEffect(city) {
         weatherViewModel.getWeatherByCity(city)
     }
 
     val weatherResponse = weatherViewModel.weatherResponse.value
-    val tempMax = weatherResponse?.main?.temp_max
+    val temp = weatherResponse?.main?.temp
     val weatherIconUrl = weatherViewModel.weatherIcon.value
 
     Column {
         Text(
-            text = "Hello $tempMax!",
+            text = "Hello $temp!",
+            modifier = modifier
+        )
+        if (!weatherIconUrl.isNullOrBlank()) {
+            WeatherIcon(iconUrl = "https://openweathermap.org/img/w/${weatherIconUrl}.png", size = 64.dp)
+        }
+    }
+}
+
+@Composable
+fun GetWeatherByCurrentLocation(context: Context, weatherViewModel: WeatherViewModel, modifier: Modifier = Modifier) {
+    LaunchedEffect(context) {
+        weatherViewModel.getWeatherByCurrentLocation(context)
+    }
+
+    val weatherResponse = weatherViewModel.weatherResponse.value
+    val temp = weatherResponse?.main?.temp
+    val weatherIconUrl = weatherViewModel.weatherIcon.value
+
+    Column {
+        Text(
+            text = "Temp: $temp!",
             modifier = modifier
         )
         if (!weatherIconUrl.isNullOrBlank()) {

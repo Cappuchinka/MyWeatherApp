@@ -9,4 +9,10 @@ interface WeatherApi {
     suspend fun getWeatherByCity( @Query("units") units: String,
                                   @Query("appid") apiKey: String,
                                   @Query("q") location: String): WeatherResponse
+
+    @GET("data/2.5/weather")
+    suspend fun getWeatherByLocation(@Query("lat") lat: Double,
+                                     @Query("lon") lon: Double,
+                                     @Query("units") units: String,
+                                     @Query("appid") apiKey: String): WeatherResponse
 }
