@@ -28,7 +28,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import coil.ImageLoader
 import coil.compose.AsyncImage
+import coil.disk.DiskCache
+import coil.memory.MemoryCache
+import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import ru.kapuchinka.myweatherapp.ui.theme.MyWeatherAppTheme
@@ -98,7 +102,7 @@ fun GetWeatherByCurrentLocation(context: Context, weatherViewModel: WeatherViewM
             modifier = modifier
         )
         if (!weatherIconUrl.isNullOrBlank()) {
-            WeatherIcon(iconUrl = "https://openweathermap.org/img/w/${weatherIconUrl}.png", size = 128.dp)
+            LoadImageWithCache(iconUrl = "https://openweathermap.org/img/w/${weatherIconUrl}.png", size = 128.dp, context = context)
         }
     }
 }
@@ -131,39 +135,67 @@ fun WeatherIcon(iconUrl: String, size: Dp) {
                 .build(),
             contentDescription = "Weather Icon",
             contentScale = ContentScale.Crop,
-            modifier = Modifier.size(size)
+            modifier = Modifier.size(size),
         )
     }
 }
 
-//@Composable
-//fun LoadImageWithCache(context: Context, imageUrl: String){
-//    val imageLoader = ImageLoader.Builder(context)
-//        .memoryCachePolicy(CachePolicy.ENABLED)
-//        .memoryCache {
-//            MemoryCache.Builder(context)
-//                .maxSizePercent(0.25)
-//                .build()
-//        }
-//        .diskCache {
-//            DiskCache.Builder()
-//                .directory(context.cacheDir.resolve("image_cache"))
-//                .maxSizePercent(0.02)
-//                .build()
-//        }
-//        .build()
-//
-//    val request = remember {
-//        ImageRequest.Builder(context)
-//            .data(imageUrl)
-//            .build()
-//    }
-//
-//    val painter = rememberAsyncImagePainter(
-//        request = request,
-//        imageLoader = imageLoader,
-//
-//    )
-//}
+@Composable
+fun LoadImageWithCache(context: Context, iconUrl: String, size: Dp){
+    val imageLoader = ImageLoader.Builder(context)
+        .memoryCachePolicy(CachePolicy.ENABLED)
+        .memoryCache {
+            MemoryCache.Builder(context)
+                .maxSizePercent(0.25)
+                .build()
+        }
+        .diskCachePolicy(CachePolicy.ENABLED)
+        .diskCache {
+            DiskCache.Builder()
+                .directory(context.cacheDir.resolve("weather_icon_cache"))
+                .maxSizePercent(0.02)
+                .build()
+        }
+        .build()
+
+    var isLoading by remember { mutableStateOf(true) } // Добавляем состояние для отслеживания загрузки
+
+    val imageRequest = remember {
+        ImageRequest.Builder(context)
+            .data(iconUrl)
+            .memoryCacheKey(iconUrl)
+            .diskCacheKey(iconUrl)
+            .crossfade(true)
+            .listener(
+                onSuccess = { request, metadata ->
+                    isLoading = false // Устанавливаем isLoading в false, когда изображение загружено
+                },
+                onError = { request, throwable ->
+                    // Обработка ошибки, если не удалось загрузить изображение
+                }
+            )
+            .build()
+    }
+
+    imageLoader.enqueue(request = imageRequest)
+
+    Box(
+        modifier = Modifier
+            .height(size)
+            .width(size),
+        contentAlignment = Alignment.Center
+    ) {
+        if (isLoading) {
+            CircularProgressIndicator()
+        }
+        AsyncImage(
+            model = imageRequest,
+            imageLoader = imageLoader,
+            contentDescription = "Weather Icon",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.size(size),
+        )
+    }
+}
 
 
