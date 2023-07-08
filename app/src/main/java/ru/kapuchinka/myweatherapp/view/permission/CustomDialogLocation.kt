@@ -1,4 +1,4 @@
-package ru.kapuchinka.myweatherapp.utils.permission
+package ru.kapuchinka.myweatherapp.view.permission
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

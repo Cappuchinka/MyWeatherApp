@@ -36,8 +36,8 @@ import coil.memory.MemoryCache
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import ru.kapuchinka.myweatherapp.ui.theme.MyWeatherAppTheme
-import ru.kapuchinka.myweatherapp.utils.permission.RequestPermission
+import ru.kapuchinka.myweatherapp.ui.theme.MyMaterialTheme
+import ru.kapuchinka.myweatherapp.view.permission.RequestPermission
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherRoomViewModel
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherViewModel
 
@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
 //        weatherRoomViewModel.insertWeather(WeatherModel(id = null, city = "Moscow", lat = 55.7522, lon = 37.6156))
 
         setContent {
-            MyWeatherAppTheme {
+            MyMaterialTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -109,7 +109,7 @@ fun GetWeatherByCurrentLocation(context: Context, weatherViewModel: WeatherViewM
             modifier = modifier
         )
         if (!weatherIconUrl.isNullOrBlank()) {
-            LoadImageWithCache(iconUrl = "https://openweathermap.org/img/w/${weatherIconUrl}.png", size = 128.dp, context = context)
+            LoadImageWithCache(iconUrl = "https://openweathermap.org/img/wn/${weatherIconUrl}.png", size = 128.dp, context = context)
         }
     }
 }
