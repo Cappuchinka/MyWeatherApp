@@ -13,10 +13,10 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.launch
 import ru.kapuchinka.myweatherapp.api.model.WeatherResponse
-import ru.kapuchinka.myweatherapp.repository.WeatherRepository
+import ru.kapuchinka.myweatherapp.repository.WeatherRepositoryRetrofit
 
 class WeatherViewModel : ViewModel() {
-    private val weatherRepository = WeatherRepository()
+    private val weatherRepositoryRetrofit = WeatherRepositoryRetrofit()
 
     val weatherResponse = mutableStateOf<WeatherResponse?>(null)
     val weatherIcon = mutableStateOf<String?>(null)
@@ -66,14 +66,14 @@ class WeatherViewModel : ViewModel() {
 
     fun getWeatherByCity(city: String) {
         viewModelScope.launch {
-            weatherResponse.value = weatherRepository.getWeatherByCity(city, APPID, UNITS)
+            weatherResponse.value = weatherRepositoryRetrofit.getWeatherByCity(city, APPID, UNITS)
             weatherIcon.value = weatherResponse.value?.weather?.get(0)?.icon
         }
     }
 
     private fun getWeatherByLocation(lat: Double, lon: Double) {
         viewModelScope.launch {
-            weatherResponse.value = weatherRepository.getWeatherByLocation(lat, lon, APPID, UNITS)
+            weatherResponse.value = weatherRepositoryRetrofit.getWeatherByLocation(lat, lon, APPID, UNITS)
             Log.d("RESPONSE", weatherResponse.value!!.name)
             weatherIcon.value = weatherResponse.value?.weather?.get(0)?.icon
             Log.d("RESPONSE", weatherIcon.value!!)

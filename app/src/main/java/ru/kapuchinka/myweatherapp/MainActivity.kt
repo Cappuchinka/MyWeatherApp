@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,16 +38,20 @@ import coil.request.ImageRequest
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import ru.kapuchinka.myweatherapp.ui.theme.MyWeatherAppTheme
 import ru.kapuchinka.myweatherapp.utils.permission.RequestPermission
+import ru.kapuchinka.myweatherapp.viewmodel.WeatherRoomViewModel
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherViewModel
 
 class MainActivity : ComponentActivity() {
     private val weatherViewModel: WeatherViewModel by viewModels()
+    private val weatherRoomViewModel: WeatherRoomViewModel by viewModels()
     private val context: Context = this
 
     @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         weatherViewModel.setContext(this)
+
+//        weatherRoomViewModel.insertWeather(WeatherModel(id = null, city = "Moscow", lat = 55.7522, lon = 37.6156))
 
         setContent {
             MyWeatherAppTheme {
@@ -58,6 +63,8 @@ class MainActivity : ComponentActivity() {
                     Column {
 //                        GetWeatherByCity("Moscow", weatherViewModel)
                         GetWeatherByCurrentLocation(context = context, weatherViewModel = weatherViewModel)
+//                        GetAll(weatherRoomViewModel = weatherRoomViewModel)
+                        GetWeatherById(weatherRoomViewModel = weatherRoomViewModel, id = 2)
                     }
                 }
             }
@@ -195,6 +202,27 @@ fun LoadImageWithCache(context: Context, iconUrl: String, size: Dp){
             contentScale = ContentScale.Crop,
             modifier = Modifier.size(size),
         )
+    }
+}
+
+@Composable
+fun GetAll(weatherRoomViewModel: WeatherRoomViewModel) {
+    val allData by weatherRoomViewModel.allData.observeAsState(emptyList())
+    Column {
+        allData.forEach { weatherModel ->
+            Text(text = weatherModel.toString())
+        }
+    }
+}
+
+@Composable
+fun GetWeatherById(weatherRoomViewModel: WeatherRoomViewModel, id: Int) {
+    LaunchedEffect(id) {
+        weatherRoomViewModel.getWeatherById(id)
+    }
+    val weather by weatherRoomViewModel.weatherById.observeAsState()
+    Column {
+        Text(text = weather.toString())
     }
 }
 
