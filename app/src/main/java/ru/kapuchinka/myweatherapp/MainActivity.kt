@@ -36,17 +36,22 @@ import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import ru.kapuchinka.myweatherapp.ui.theme.MyWeatherAppTheme
+import ru.kapuchinka.myweatherapp.utils.db.model.WeatherModel
 import ru.kapuchinka.myweatherapp.utils.permission.RequestPermission
+import ru.kapuchinka.myweatherapp.viewmodel.WeatherRoomViewModel
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherViewModel
 
 class MainActivity : ComponentActivity() {
     private val weatherViewModel: WeatherViewModel by viewModels()
+    private val weatherRoomViewModel: WeatherRoomViewModel by viewModels()
     private val context: Context = this
 
     @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         weatherViewModel.setContext(this)
+
+//        weatherRoomViewModel.insertWeather(WeatherModel(id = null, city = "Voronezh", lat = 51.6664, lon = 39.17))
 
         setContent {
             MyWeatherAppTheme {
