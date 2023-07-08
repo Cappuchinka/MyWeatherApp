@@ -10,4 +10,8 @@ class WeatherRepositoryRoom(private val weatherDao: WeatherDao) {
     suspend fun insertWeather(weatherModel: WeatherModel) {
         weatherDao.insertWeather(weatherModel)
     }
+
+    suspend fun getWeatherById(id: Int) : WeatherModel {
+        return weatherDao.getWeatherByID(id)
+    }
 }

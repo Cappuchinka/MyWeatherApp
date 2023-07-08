@@ -63,7 +63,8 @@ class MainActivity : ComponentActivity() {
                     Column {
 //                        GetWeatherByCity("Moscow", weatherViewModel)
                         GetWeatherByCurrentLocation(context = context, weatherViewModel = weatherViewModel)
-                        GetAll(weatherRoomViewModel = weatherRoomViewModel)
+//                        GetAll(weatherRoomViewModel = weatherRoomViewModel)
+                        GetWeatherById(weatherRoomViewModel = weatherRoomViewModel, id = 2)
                     }
                 }
             }
@@ -211,6 +212,17 @@ fun GetAll(weatherRoomViewModel: WeatherRoomViewModel) {
         allData.forEach { weatherModel ->
             Text(text = weatherModel.toString())
         }
+    }
+}
+
+@Composable
+fun GetWeatherById(weatherRoomViewModel: WeatherRoomViewModel, id: Int) {
+    LaunchedEffect(id) {
+        weatherRoomViewModel.getWeatherById(id)
+    }
+    val weather by weatherRoomViewModel.weatherById.observeAsState()
+    Column {
+        Text(text = weather.toString())
     }
 }
 

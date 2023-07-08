@@ -14,4 +14,7 @@ interface WeatherDao {
 
     @Query("SELECT * FROM weather_table ORDER BY city ASC")
     fun getAll(): LiveData<List<WeatherModel>>
+
+    @Query("SELECT * FROM weather_table WHERE id = :id")
+    suspend fun getWeatherByID(id: Int) : WeatherModel
 }
