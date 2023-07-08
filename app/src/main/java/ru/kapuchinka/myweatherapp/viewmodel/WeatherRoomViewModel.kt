@@ -11,7 +11,7 @@ import ru.kapuchinka.myweatherapp.utils.db.model.WeatherModel
 import ru.kapuchinka.myweatherapp.utils.db.repository.WeatherRepositoryRoom
 
 class WeatherRoomViewModel(application: Application) : AndroidViewModel(application) {
-    private val allData: LiveData<List<WeatherModel>>
+    val allData: LiveData<List<WeatherModel>>
     private val weatherRepositoryRoom: WeatherRepositoryRoom
 
     init {
