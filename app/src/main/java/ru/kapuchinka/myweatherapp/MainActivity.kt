@@ -38,6 +38,7 @@ import coil.request.ImageRequest
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import ru.kapuchinka.myweatherapp.ui.theme.MyMaterialTheme
 import ru.kapuchinka.myweatherapp.view.permission.RequestPermission
+import ru.kapuchinka.myweatherapp.view.weather.WeatherScreen
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherRoomViewModel
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherViewModel
 
@@ -51,8 +52,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         weatherViewModel.setContext(this)
 
-//        weatherRoomViewModel.insertWeather(WeatherModel(id = null, city = "Moscow", lat = 55.7522, lon = 37.6156))
-
         setContent {
             MyMaterialTheme {
                 Surface(
@@ -60,12 +59,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     RequestPermission(permission = Manifest.permission.ACCESS_FINE_LOCATION)
-                    Column {
-//                        GetWeatherByCity("Moscow", weatherViewModel)
-                        GetWeatherByCurrentLocation(context = context, weatherViewModel = weatherViewModel)
-//                        GetAll(weatherRoomViewModel = weatherRoomViewModel)
-                        GetWeatherById(weatherRoomViewModel = weatherRoomViewModel, id = 2)
-                    }
+                    WeatherScreen(weatherViewModel = weatherViewModel, context = context)
                 }
             }
         }
@@ -225,5 +219,12 @@ fun GetWeatherById(weatherRoomViewModel: WeatherRoomViewModel, id: Int) {
         Text(text = weather.toString())
     }
 }
+
+//                    Column {
+//                        GetWeatherByCity("Moscow", weatherViewModel)
+//                        GetWeatherByCurrentLocation(context = context, weatherViewModel = weatherViewModel)
+//                        GetAll(weatherRoomViewModel = weatherRoomViewModel)
+//                        GetWeatherById(weatherRoomViewModel = weatherRoomViewModel, id = 2)
+//                    }
 
 
