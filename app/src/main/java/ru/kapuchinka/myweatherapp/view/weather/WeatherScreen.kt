@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
@@ -101,27 +102,53 @@ private fun GetWeatherByCurrentLocation(weatherViewModel: WeatherViewModel, cont
     val weatherResponse = weatherViewModel.weatherResponse.value
     val weatherIconUrl = weatherViewModel.weatherIcon.value
 
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .fillMaxHeight(0.3f),
-        contentAlignment = Alignment.Center) {
-        Row(horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center) {
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(0.3f),
+            contentAlignment = Alignment.Center) {
             Column(verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally) {
-                if (!weatherIconUrl.isNullOrBlank()) {
-                    LoadImageWithCache(
-                        context = context,
-                        iconUrl = "https://openweathermap.org/img/wn/${weatherIconUrl}@2x.png",
-                        size = 128.dp
-                    )
+                Row(horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Column(verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally) {
+                        if (!weatherIconUrl.isNullOrBlank()) {
+                            LoadImageWithCache(
+                                context = context,
+                                iconUrl = "https://openweathermap.org/img/wn/${weatherIconUrl}@2x.png",
+                                size = 128.dp
+                            )
+                        }
+                        Text(text = "Cloud: ${weatherResponse?.clouds?.all}%")
+                    }
+                    Column(verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(text = "${weatherResponse?.main?.temp}°C", fontSize = 50.sp) // temperature
+                        Text(text = "Feel like: ${weatherResponse?.main?.feels_like}°C", fontSize = 20.sp) // temperature feels like
+                    }
                 }
-                Text(text = "${weatherResponse?.weather?.getOrNull(0)?.description}")
+                Text(text = "${weatherResponse?.weather?.getOrNull(0)?.description}", fontSize = 20.sp)
             }
-            Column(verticalArrangement = Arrangement.Center,
-                   horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = "${weatherResponse?.main?.temp}°C", fontSize = 50.sp) // temperature
-                Text(text = "${weatherResponse?.main?.feels_like}°C", fontSize = 20.sp) // temperature feels like
+        }
+        Row(modifier = Modifier
+            .padding(5.dp)
+            .fillMaxWidth(1f)
+            .fillMaxHeight(0.2f),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally,
+                   verticalArrangement = Arrangement.Center) {
+                Text(text = "${weatherResponse?.main?.temp_min}°C", fontSize = 20.sp)
+                Image(painter = painterResource(id = R.drawable.temp_min_light_theme), contentDescription = "temp_min")
+                Log.d("TEMP", "${weatherResponse?.main?.temp_min}°C")
+            }
+            Column(horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center) {
+                Text(text = "${weatherResponse?.main?.temp_max}°C", fontSize = 20.sp)
+                Image(painter = painterResource(id = R.drawable.temp_max_light_theme), contentDescription = "temp_max")
+                Log.d("TEMP", "${weatherResponse?.main?.temp_max}°C")
             }
         }
     }
