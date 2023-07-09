@@ -109,9 +109,13 @@ private fun GetWeatherByCurrentLocation(weatherViewModel: WeatherViewModel, cont
             verticalAlignment = Alignment.CenterVertically) {
             Column(verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally) {
-                LoadImageWithCache(context = context,
-                                   iconUrl = "https://openweathermap.org/img/wn/${weatherIconUrl}@2x.png",
-                                   size = 128.dp)
+                if (!weatherIconUrl.isNullOrBlank()) {
+                    LoadImageWithCache(
+                        context = context,
+                        iconUrl = "https://openweathermap.org/img/wn/${weatherIconUrl}@2x.png",
+                        size = 128.dp
+                    )
+                }
                 Text(text = "${weatherResponse?.weather?.getOrNull(0)?.description}")
             }
             Column(verticalArrangement = Arrangement.Center,
@@ -125,7 +129,6 @@ private fun GetWeatherByCurrentLocation(weatherViewModel: WeatherViewModel, cont
 
 @Composable
 fun LoadImageWithCache(context: Context, iconUrl: String, size: Dp) {
-
     val imageLoader = ImageLoader.Builder(context)
         .memoryCachePolicy(CachePolicy.ENABLED)
         .memoryCache {
