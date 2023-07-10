@@ -27,7 +27,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
@@ -41,7 +40,9 @@ import coil.request.CachePolicy
 import coil.request.ImageRequest
 import ru.kapuchinka.myweatherapp.R
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherViewModel
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -56,26 +57,34 @@ fun WeatherScreen(weatherViewModel: WeatherViewModel, context: Context) {
 
 @Composable
 fun Title(city: String) {
-    Box(modifier = Modifier
-        .fillMaxHeight(0.08f)
-        .background(MaterialTheme.colorScheme.primary)) {
+    Box(
+        modifier = Modifier
+            .fillMaxHeight(0.08f)
+            .background(MaterialTheme.colorScheme.primary)
+    ) {
         Row(modifier = Modifier.fillMaxSize()) {
-            Box(modifier = Modifier
-                .fillMaxHeight(1f)
-                .padding(15.dp),
-                contentAlignment = Alignment.CenterStart) {
-                Text(text = city,
-                     color = MaterialTheme.colorScheme.onTertiary,
-                     fontSize = 22.sp)
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight(1f)
+                    .padding(15.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Text(
+                    text = city,
+                    color = MaterialTheme.colorScheme.onTertiary,
+                    fontSize = 22.sp
+                )
             }
-            Box(modifier = Modifier
-                .fillMaxSize(1f)
-                .padding(11.dp),
-                contentAlignment = Alignment.CenterEnd)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(1f)
+                    .padding(11.dp),
+                contentAlignment = Alignment.CenterEnd
+            )
             {
                 Image(painter = painterResource(id = R.drawable.trash_bin),
-                      contentDescription = "trash",
-                      modifier = Modifier.clickable { Log.d("TRASH", "CLICKED") })
+                    contentDescription = "trash",
+                    modifier = Modifier.clickable { Log.d("TRASH", "CLICKED") })
             }
         }
     }
@@ -84,10 +93,12 @@ fun Title(city: String) {
 @Composable
 fun InfoLastUpdated() {
     val date = getDate()
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .padding(15.dp),
-        contentAlignment = Alignment.Center) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(15.dp),
+        contentAlignment = Alignment.Center
+    ) {
         Text(text = "LAST UPDATED AT: $date")
     }
 }
@@ -102,18 +113,28 @@ private fun GetWeatherByCurrentLocation(weatherViewModel: WeatherViewModel, cont
     val weatherResponse = weatherViewModel.weatherResponse.value
     val weatherIconUrl = weatherViewModel.weatherIcon.value
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center) {
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(0.3f),
-            contentAlignment = Alignment.Center) {
-            Column(verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally) {
-                Row(horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically) {
-                    Column(verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.3f),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
                         if (!weatherIconUrl.isNullOrBlank()) {
                             LoadImageWithCache(
                                 context = context,
@@ -123,32 +144,153 @@ private fun GetWeatherByCurrentLocation(weatherViewModel: WeatherViewModel, cont
                         }
                         Text(text = "Cloud: ${weatherResponse?.clouds?.all}%")
                     }
-                    Column(verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(text = "${weatherResponse?.main?.temp}°C", fontSize = 50.sp) // temperature
-                        Text(text = "Feel like: ${weatherResponse?.main?.feels_like}°C", fontSize = 20.sp) // temperature feels like
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "${weatherResponse?.main?.temp}°C",
+                            fontSize = 50.sp
+                        ) // temperature
+                        Text(
+                            text = "Feel like: ${weatherResponse?.main?.feels_like}°C",
+                            fontSize = 20.sp
+                        ) // temperature feels like
                     }
                 }
-                Text(text = "${weatherResponse?.weather?.getOrNull(0)?.description}", fontSize = 20.sp)
+                Text(
+                    text = "${weatherResponse?.weather?.getOrNull(0)?.description}",
+                    fontSize = 20.sp
+                )
             }
         }
-        Row(modifier = Modifier
-            .padding(5.dp)
-            .fillMaxWidth(1f)
-            .fillMaxHeight(0.2f),
+        Row(
+            modifier = Modifier
+                .padding(5.dp)
+                .fillMaxWidth(1f)
+                .fillMaxHeight(0.2f),
             horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally,
-                   verticalArrangement = Arrangement.Center) {
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Box(modifier = Modifier.size(56.dp))
+                {
+                    Image(
+                        painter = painterResource(id = R.drawable.temp_min_light_theme),
+                        contentDescription = "temp_min"
+                    )
+                }
                 Text(text = "${weatherResponse?.main?.temp_min}°C", fontSize = 20.sp)
-                Image(painter = painterResource(id = R.drawable.temp_min_light_theme), contentDescription = "temp_min")
-                Log.d("TEMP", "${weatherResponse?.main?.temp_min}°C")
             }
-            Column(horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Box(modifier = Modifier.size(56.dp)) {
+                    Image(
+                        painter = painterResource(id = R.drawable.temp_max_light_theme),
+                        contentDescription = "temp_max"
+                    )
+                }
                 Text(text = "${weatherResponse?.main?.temp_max}°C", fontSize = 20.sp)
-                Image(painter = painterResource(id = R.drawable.temp_max_light_theme), contentDescription = "temp_max")
-                Log.d("TEMP", "${weatherResponse?.main?.temp_max}°C")
+            }
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(1f)
+                .padding(20.dp),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .padding(3.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.wind_light),
+                        contentDescription = "wind"
+                    )
+                }
+                Text(text = "Wind: ${weatherResponse?.wind?.speed} meter/sec")
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .padding(3.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.pressure_light),
+                        contentDescription = "pressure"
+                    )
+                }
+                Text(text = "Pressure: ${weatherResponse?.main?.pressure} hPa")
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .padding(3.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.humidity_light),
+                        contentDescription = "humidity"
+                    )
+                }
+                Text(text = "Humidity: ${weatherResponse?.main?.humidity}%")
+            }
+        }
+        Row(
+            modifier = Modifier
+                .padding(0.dp)
+                .fillMaxWidth(1f)
+                .fillMaxHeight(0.8f),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Box(modifier = Modifier.size(80.dp)) {
+                    Image(
+                        painter = painterResource(id = R.drawable.sunrise_light),
+                        contentDescription = "sunrise"
+                    )
+                }
+                Text(
+                    text = "${weatherResponse?.sys?.let { getTime(it.sunrise) }}",
+                    fontSize = 20.sp
+                )
+            }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Box(modifier = Modifier.size(80.dp)) {
+                    Image(
+                        painter = painterResource(id = R.drawable.sunset_light),
+                        contentDescription = "sunset"
+                    )
+                }
+                Text(text = "${weatherResponse?.sys?.let { getTime(it.sunset) }}", fontSize = 20.sp)
             }
         }
     }
@@ -182,11 +324,15 @@ fun LoadImageWithCache(context: Context, iconUrl: String, size: Dp) {
             .crossfade(true)
             .listener(
                 onSuccess = { request, metadata ->
-                    isLoading = false // Устанавливаем isLoading в false, когда изображение загружено
+                    isLoading =
+                        false // Устанавливаем isLoading в false, когда изображение загружено
                     Log.d("LOAD_ICON", "onSuccess")
                 },
                 onError = { request, throwable ->
-                    Log.d("LOAD_ICON", "onError")// Обработка ошибки, если не удалось загрузить изображение
+                    Log.d(
+                        "LOAD_ICON",
+                        "onError"
+                    )// Обработка ошибки, если не удалось загрузить изображение
                 }
             )
             .build()
@@ -219,4 +365,15 @@ private fun getDate(): String {
     val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd hh:mm a")
 
     return dateTime.format(formatter)
+}
+
+private fun getTime(milliseconds: Long): String {
+    val time = LocalDateTime.ofInstant(
+        Instant.ofEpochSecond(milliseconds),
+        ZoneId.systemDefault()
+    )
+
+    val formatter = DateTimeFormatter.ofPattern("hh:mm a")
+
+    return time.format(formatter)
 }
