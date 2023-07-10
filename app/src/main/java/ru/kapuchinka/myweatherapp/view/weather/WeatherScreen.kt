@@ -39,6 +39,7 @@ import coil.memory.MemoryCache
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import ru.kapuchinka.myweatherapp.R
+import ru.kapuchinka.myweatherapp.api.model.WeatherResponse
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherViewModel
 import java.time.Instant
 import java.time.LocalDateTime
@@ -47,10 +48,33 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun WeatherScreen(weatherViewModel: WeatherViewModel, context: Context) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        Title("Voronezh")
-        InfoLastUpdated()
-        GetWeatherByCurrentLocation(weatherViewModel, context)
+
+    LaunchedEffect(context) {
+        weatherViewModel.setContext(context)
+        weatherViewModel.getWeatherByCurrentLocation(context)
+    }
+
+    val weatherResponse = weatherViewModel.weatherResponse.value
+
+    Box(
+        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter
+    ) {
+        if (weatherResponse != null) {
+            Column(
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Title(weatherResponse.name)
+                InfoLastUpdated()
+                GetWeatherByCurrentLocation(weatherResponse, context)
+            }
+        } else {
+            Box(
+                modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
     }
 }
 
@@ -59,7 +83,7 @@ fun WeatherScreen(weatherViewModel: WeatherViewModel, context: Context) {
 fun Title(city: String) {
     Box(
         modifier = Modifier
-            .fillMaxHeight(0.08f)
+            .fillMaxHeight(0.09f)
             .background(MaterialTheme.colorScheme.primary)
     ) {
         Row(modifier = Modifier.fillMaxSize()) {
@@ -70,9 +94,7 @@ fun Title(city: String) {
                 contentAlignment = Alignment.CenterStart
             ) {
                 Text(
-                    text = city,
-                    color = MaterialTheme.colorScheme.onTertiary,
-                    fontSize = 22.sp
+                    text = city, color = MaterialTheme.colorScheme.onTertiary, fontSize = 22.sp
                 )
             }
             Box(
@@ -80,8 +102,7 @@ fun Title(city: String) {
                     .fillMaxSize(1f)
                     .padding(11.dp),
                 contentAlignment = Alignment.CenterEnd
-            )
-            {
+            ) {
                 Image(painter = painterResource(id = R.drawable.trash_bin),
                     contentDescription = "trash",
                     modifier = Modifier.clickable { Log.d("TRASH", "CLICKED") })
@@ -96,26 +117,17 @@ fun InfoLastUpdated() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(15.dp),
-        contentAlignment = Alignment.Center
+            .padding(15.dp), contentAlignment = Alignment.Center
     ) {
         Text(text = "LAST UPDATED AT: $date")
     }
 }
 
 @Composable
-private fun GetWeatherByCurrentLocation(weatherViewModel: WeatherViewModel, context: Context) {
-    LaunchedEffect(context) {
-        weatherViewModel.setContext(context)
-        weatherViewModel.getWeatherByCurrentLocation(context)
-    }
-
-    val weatherResponse = weatherViewModel.weatherResponse.value
-    val weatherIconUrl = weatherViewModel.weatherIcon.value
-
+private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, context: Context) {
+    val weatherIconUrl = weatherResponse.weather[0].icon
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center
     ) {
         Box(
             modifier = Modifier
@@ -149,8 +161,7 @@ private fun GetWeatherByCurrentLocation(weatherViewModel: WeatherViewModel, cont
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "${weatherResponse?.main?.temp}°C",
-                            fontSize = 50.sp
+                            text = "${weatherResponse?.main?.temp}°C", fontSize = 50.sp
                         ) // temperature
                         Text(
                             text = "Feel like: ${weatherResponse?.main?.feels_like}°C",
@@ -176,8 +187,7 @@ private fun GetWeatherByCurrentLocation(weatherViewModel: WeatherViewModel, cont
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Box(modifier = Modifier.size(56.dp))
-                {
+                Box(modifier = Modifier.size(56.dp)) {
                     Image(
                         painter = painterResource(id = R.drawable.temp_min_light_theme),
                         contentDescription = "temp_min"
@@ -276,8 +286,7 @@ private fun GetWeatherByCurrentLocation(weatherViewModel: WeatherViewModel, cont
                     )
                 }
                 Text(
-                    text = "${weatherResponse?.sys?.let { getTime(it.sunrise) }}",
-                    fontSize = 20.sp
+                    text = "${weatherResponse?.sys?.let { getTime(it.sunrise) }}", fontSize = 20.sp
                 )
             }
             Column(
@@ -298,44 +307,26 @@ private fun GetWeatherByCurrentLocation(weatherViewModel: WeatherViewModel, cont
 
 @Composable
 fun LoadImageWithCache(context: Context, iconUrl: String, size: Dp) {
-    val imageLoader = ImageLoader.Builder(context)
-        .memoryCachePolicy(CachePolicy.ENABLED)
-        .memoryCache {
-            MemoryCache.Builder(context)
-                .maxSizePercent(0.25)
-                .build()
-        }
-        .diskCachePolicy(CachePolicy.ENABLED)
-        .diskCache {
-            DiskCache.Builder()
-                .directory(context.cacheDir.resolve("weather_icon_cache"))
-                .maxSizePercent(0.02)
-                .build()
-        }
-        .build()
+    val imageLoader =
+        ImageLoader.Builder(context).memoryCachePolicy(CachePolicy.ENABLED).memoryCache {
+                MemoryCache.Builder(context).maxSizePercent(0.25).build()
+            }.diskCachePolicy(CachePolicy.ENABLED).diskCache {
+                DiskCache.Builder().directory(context.cacheDir.resolve("weather_icon_cache"))
+                    .maxSizePercent(0.02).build()
+            }.build()
 
     var isLoading by remember { mutableStateOf(true) } // Добавляем состояние для отслеживания загрузки
 
     val imageRequest = remember {
-        ImageRequest.Builder(context)
-            .data(iconUrl)
-            .memoryCacheKey(iconUrl)
-            .diskCacheKey(iconUrl)
-            .crossfade(true)
-            .listener(
-                onSuccess = { request, metadata ->
-                    isLoading =
-                        false // Устанавливаем isLoading в false, когда изображение загружено
-                    Log.d("LOAD_ICON", "onSuccess")
-                },
-                onError = { request, throwable ->
-                    Log.d(
-                        "LOAD_ICON",
-                        "onError"
-                    )// Обработка ошибки, если не удалось загрузить изображение
-                }
-            )
-            .build()
+        ImageRequest.Builder(context).data(iconUrl).memoryCacheKey(iconUrl).diskCacheKey(iconUrl)
+            .crossfade(true).listener(onSuccess = { request, metadata ->
+                isLoading = false // Устанавливаем isLoading в false, когда изображение загружено
+                Log.d("LOAD_ICON", "onSuccess")
+            }, onError = { request, throwable ->
+                Log.d(
+                    "LOAD_ICON", "onError"
+                )// Обработка ошибки, если не удалось загрузить изображение
+            }).build()
     }
 
     imageLoader.enqueue(request = imageRequest)
@@ -343,8 +334,7 @@ fun LoadImageWithCache(context: Context, iconUrl: String, size: Dp) {
     Box(
         modifier = Modifier
             .height(size)
-            .width(size),
-        contentAlignment = Alignment.Center
+            .width(size), contentAlignment = Alignment.Center
     ) {
         if (isLoading) {
             CircularProgressIndicator()
@@ -369,8 +359,7 @@ private fun getDate(): String {
 
 private fun getTime(milliseconds: Long): String {
     val time = LocalDateTime.ofInstant(
-        Instant.ofEpochSecond(milliseconds),
-        ZoneId.systemDefault()
+        Instant.ofEpochSecond(milliseconds), ZoneId.systemDefault()
     )
 
     val formatter = DateTimeFormatter.ofPattern("hh:mm a")
