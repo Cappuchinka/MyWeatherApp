@@ -1,10 +1,11 @@
 package ru.kapuchinka.myweatherapp.view.weather
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,7 +39,6 @@ import coil.disk.DiskCache
 import coil.memory.MemoryCache
 import coil.request.CachePolicy
 import coil.request.ImageRequest
-import ru.kapuchinka.myweatherapp.R
 import ru.kapuchinka.myweatherapp.api.model.WeatherResponse
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherViewModel
 import java.time.Instant
@@ -97,16 +97,6 @@ fun Title(city: String) {
                     text = city, color = MaterialTheme.colorScheme.onTertiary, fontSize = 22.sp
                 )
             }
-            Box(
-                modifier = Modifier
-                    .fillMaxSize(1f)
-                    .padding(11.dp),
-                contentAlignment = Alignment.CenterEnd
-            ) {
-                Image(painter = painterResource(id = R.drawable.trash_bin),
-                    contentDescription = "trash",
-                    modifier = Modifier.clickable { Log.d("TRASH", "CLICKED") })
-            }
         }
     }
 }
@@ -117,7 +107,8 @@ fun InfoLastUpdated() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(15.dp), contentAlignment = Alignment.Center
+            .padding(top = 15.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+        contentAlignment = Alignment.Center
     ) {
         Text(text = "LAST UPDATED AT: $date")
     }
@@ -126,6 +117,7 @@ fun InfoLastUpdated() {
 @Composable
 private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, context: Context) {
     val weatherIconUrl = weatherResponse.weather[0].icon
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center
     ) {
@@ -147,30 +139,30 @@ private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, contex
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        if (!weatherIconUrl.isNullOrBlank()) {
+                        if (weatherIconUrl.isNotBlank()) {
                             LoadImageWithCache(
                                 context = context,
                                 iconUrl = "https://openweathermap.org/img/wn/${weatherIconUrl}@2x.png",
                                 size = 128.dp
                             )
                         }
-                        Text(text = "Cloud: ${weatherResponse?.clouds?.all}%")
+                        Text(text = "Cloud: ${weatherResponse.clouds.all}%")
                     }
                     Column(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "${weatherResponse?.main?.temp}°C", fontSize = 50.sp
+                            text = "${weatherResponse.main.temp}°C", fontSize = 50.sp
                         ) // temperature
                         Text(
-                            text = "Feel like: ${weatherResponse?.main?.feels_like}°C",
+                            text = "Feel like: ${weatherResponse.main.feels_like}°C",
                             fontSize = 20.sp
                         ) // temperature feels like
                     }
                 }
                 Text(
-                    text = "${weatherResponse?.weather?.getOrNull(0)?.description}",
+                    text = weatherResponse.weather[0].description,
                     fontSize = 20.sp
                 )
             }
@@ -188,24 +180,18 @@ private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, contex
                 verticalArrangement = Arrangement.Center
             ) {
                 Box(modifier = Modifier.size(56.dp)) {
-                    Image(
-                        painter = painterResource(id = R.drawable.temp_min_light_theme),
-                        contentDescription = "temp_min"
-                    )
+                    ThemedImage(context = context, nameIcon = "temp_min")
                 }
-                Text(text = "${weatherResponse?.main?.temp_min}°C", fontSize = 20.sp)
+                Text(text = "${weatherResponse.main.temp_min}°C", fontSize = 20.sp)
             }
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
                 Box(modifier = Modifier.size(56.dp)) {
-                    Image(
-                        painter = painterResource(id = R.drawable.temp_max_light_theme),
-                        contentDescription = "temp_max"
-                    )
+                    ThemedImage(context = context, nameIcon = "temp_max")
                 }
-                Text(text = "${weatherResponse?.main?.temp_max}°C", fontSize = 20.sp)
+                Text(text = "${weatherResponse.main.temp_max}°C", fontSize = 20.sp)
             }
         }
         Column(
@@ -225,12 +211,9 @@ private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, contex
                         .padding(3.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.wind_light),
-                        contentDescription = "wind"
-                    )
+                    ThemedImage(context = context, nameIcon = "wind")
                 }
-                Text(text = "Wind: ${weatherResponse?.wind?.speed} meter/sec")
+                Text(text = "Wind: ${weatherResponse.wind.speed} meter/sec")
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -242,12 +225,9 @@ private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, contex
                         .padding(3.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.pressure_light),
-                        contentDescription = "pressure"
-                    )
+                    ThemedImage(context = context, nameIcon = "pressure")
                 }
-                Text(text = "Pressure: ${weatherResponse?.main?.pressure} hPa")
+                Text(text = "Pressure: ${weatherResponse.main.pressure} hPa")
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -259,12 +239,9 @@ private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, contex
                         .padding(3.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.humidity_light),
-                        contentDescription = "humidity"
-                    )
+                    ThemedImage(context = context, nameIcon = "humidity")
                 }
-                Text(text = "Humidity: ${weatherResponse?.main?.humidity}%")
+                Text(text = "Humidity: ${weatherResponse.main.humidity}%")
             }
         }
         Row(
@@ -280,13 +257,10 @@ private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, contex
                 verticalArrangement = Arrangement.Center
             ) {
                 Box(modifier = Modifier.size(80.dp)) {
-                    Image(
-                        painter = painterResource(id = R.drawable.sunrise_light),
-                        contentDescription = "sunrise"
-                    )
+                    ThemedImage(context = context, nameIcon = "sunrise")
                 }
                 Text(
-                    text = "${weatherResponse?.sys?.let { getTime(it.sunrise) }}", fontSize = 20.sp
+                    text = getTime(weatherResponse.sys.sunrise), fontSize = 20.sp
                 )
             }
             Column(
@@ -294,12 +268,9 @@ private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, contex
                 verticalArrangement = Arrangement.Center
             ) {
                 Box(modifier = Modifier.size(80.dp)) {
-                    Image(
-                        painter = painterResource(id = R.drawable.sunset_light),
-                        contentDescription = "sunset"
-                    )
+                    ThemedImage(context = context, nameIcon = "sunset")
                 }
-                Text(text = "${weatherResponse?.sys?.let { getTime(it.sunset) }}", fontSize = 20.sp)
+                Text(text = getTime(weatherResponse.sys.sunset), fontSize = 20.sp)
             }
         }
     }
@@ -309,20 +280,20 @@ private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, contex
 fun LoadImageWithCache(context: Context, iconUrl: String, size: Dp) {
     val imageLoader =
         ImageLoader.Builder(context).memoryCachePolicy(CachePolicy.ENABLED).memoryCache {
-                MemoryCache.Builder(context).maxSizePercent(0.25).build()
-            }.diskCachePolicy(CachePolicy.ENABLED).diskCache {
-                DiskCache.Builder().directory(context.cacheDir.resolve("weather_icon_cache"))
-                    .maxSizePercent(0.02).build()
-            }.build()
+            MemoryCache.Builder(context).maxSizePercent(0.25).build()
+        }.diskCachePolicy(CachePolicy.ENABLED).diskCache {
+            DiskCache.Builder().directory(context.cacheDir.resolve("weather_icon_cache"))
+                .maxSizePercent(0.02).build()
+        }.build()
 
     var isLoading by remember { mutableStateOf(true) } // Добавляем состояние для отслеживания загрузки
 
     val imageRequest = remember {
         ImageRequest.Builder(context).data(iconUrl).memoryCacheKey(iconUrl).diskCacheKey(iconUrl)
-            .crossfade(true).listener(onSuccess = { request, metadata ->
+            .crossfade(true).listener(onSuccess = { _, _ ->
                 isLoading = false // Устанавливаем isLoading в false, когда изображение загружено
                 Log.d("LOAD_ICON", "onSuccess")
-            }, onError = { request, throwable ->
+            }, onError = { _, _ ->
                 Log.d(
                     "LOAD_ICON", "onError"
                 )// Обработка ошибки, если не удалось загрузить изображение
@@ -334,7 +305,8 @@ fun LoadImageWithCache(context: Context, iconUrl: String, size: Dp) {
     Box(
         modifier = Modifier
             .height(size)
-            .width(size), contentAlignment = Alignment.Center
+            .width(size),
+        contentAlignment = Alignment.Center
     ) {
         if (isLoading) {
             CircularProgressIndicator()
@@ -365,4 +337,34 @@ private fun getTime(milliseconds: Long): String {
     val formatter = DateTimeFormatter.ofPattern("hh:mm a")
 
     return time.format(formatter)
+}
+
+@SuppressLint("DiscouragedApi")
+@Composable
+fun ThemedImage(context: Context, nameIcon: String) {
+    val isDarkTheme = isSystemInDarkTheme()
+    val resourceType = "drawable"
+
+    val painter = if (isDarkTheme) {
+        painterResource(
+            context.resources.getIdentifier(
+                "${nameIcon}_dark",
+                resourceType,
+                context.packageName
+            )
+        )
+    } else {
+        painterResource(
+            context.resources.getIdentifier(
+                "${nameIcon}_light",
+                resourceType,
+                context.packageName
+            )
+        )
+    }
+
+    Image(
+        painter = painter,
+        contentDescription = nameIcon // Здесь можно указать описание изображения
+    )
 }
