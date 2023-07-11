@@ -84,7 +84,6 @@ fun CustomDialogLocation(
 
                 //.........................Button : OK button
                 val cornerRadius = 10.dp
-                val gradientColors = listOf(Color(0xFFff669f), Color(0xFFff8961))
 
                 Button(
                     modifier = Modifier

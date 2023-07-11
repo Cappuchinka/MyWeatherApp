@@ -3,6 +3,8 @@ package ru.kapuchinka.myweatherapp.view.weather
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.IntentFilter
+import android.net.ConnectivityManager
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,6 +24,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +47,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import ru.kapuchinka.myweatherapp.api.model.WeatherResponse
+import ru.kapuchinka.myweatherapp.utils.db.receiver.NetworkChangeReceiver
 import ru.kapuchinka.myweatherapp.view.permission.RequestPermission
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherViewModel
 import java.time.Instant
@@ -58,34 +62,65 @@ fun WeatherScreen(weatherViewModel: WeatherViewModel, context: Context) {
     RequestPermission(permission = Manifest.permission.ACCESS_FINE_LOCATION)
 
     val locationPermissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
+    val isInternetConnected = remember { mutableStateOf(false) }
+
+    val networkChangeReceiver = remember {
+        NetworkChangeReceiver { isConnected ->
+            isInternetConnected.value = isConnected
+            if (isConnected) {
+                weatherViewModel.getWeatherByCurrentLocation(context)
+            }
+        }
+    }
 
     if (locationPermissionState.status.isGranted) {
 
-        LaunchedEffect(context) {
-            weatherViewModel.setContext(context)
-            weatherViewModel.getWeatherByCurrentLocation(context)
+        DisposableEffect(Unit) {
+            val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+            context.registerReceiver(networkChangeReceiver, filter)
+
+            onDispose {
+                context.unregisterReceiver(networkChangeReceiver)
+            }
+        }
+
+        LaunchedEffect(Unit) {
+
+            isInternetConnected.value = isInternetConnected(context)
+            if (isInternetConnected.value) {
+                weatherViewModel.setContext(context)
+                weatherViewModel.getWeatherByCurrentLocation(context)
+            }
         }
 
         val weatherResponse = weatherViewModel.weatherResponse.value
 
-        Box(
-            modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter
-        ) {
-            if (weatherResponse != null) {
-                Column(
-                    verticalArrangement = Arrangement.Top,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Title(weatherResponse.name)
-                    InfoLastUpdated()
-                    GetWeatherByCurrentLocation(weatherResponse, context)
+        if (isInternetConnected.value) {
+            Box(
+                modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter
+            ) {
+                if (weatherResponse != null) {
+                    Column(
+                        verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Title(weatherResponse.name)
+                        InfoLastUpdated()
+                        GetWeatherByCurrentLocation(weatherResponse, context)
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
-            } else {
-                Box(
-                    modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
+            }
+        } else {
+            Box(
+                modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
             }
         }
     }
@@ -380,4 +415,11 @@ fun ThemedImage(context: Context, nameIcon: String) {
         painter = painter,
         contentDescription = nameIcon // Здесь можно указать описание изображения
     )
+}
+
+private fun isInternetConnected(context: Context): Boolean {
+    val connectivityManager =
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val networkInfo = connectivityManager.activeNetworkInfo
+    return networkInfo != null && networkInfo.isConnected
 }
