@@ -128,7 +128,7 @@ fun WeatherScreen(weatherViewModel: WeatherViewModel, context: Context) {
 
 
 @Composable
-fun Title(city: String) {
+private fun Title(city: String) {
     Box(
         modifier = Modifier
             .fillMaxHeight(0.09f)
@@ -150,7 +150,7 @@ fun Title(city: String) {
 }
 
 @Composable
-fun InfoLastUpdated() {
+private fun InfoLastUpdated() {
     val date = getDate()
     Box(
         modifier = Modifier
@@ -325,7 +325,7 @@ private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, contex
 }
 
 @Composable
-fun LoadImageWithCache(context: Context, iconUrl: String, size: Dp) {
+private fun LoadImageWithCache(context: Context, iconUrl: String, size: Dp) {
     val imageLoader =
         ImageLoader.Builder(context).memoryCachePolicy(CachePolicy.ENABLED).memoryCache {
             MemoryCache.Builder(context).maxSizePercent(0.25).build()
@@ -389,7 +389,7 @@ private fun getTime(milliseconds: Long): String {
 
 @SuppressLint("DiscouragedApi")
 @Composable
-fun ThemedImage(context: Context, nameIcon: String) {
+private fun ThemedImage(context: Context, nameIcon: String) {
     val isDarkTheme = isSystemInDarkTheme()
     val resourceType = "drawable"
 

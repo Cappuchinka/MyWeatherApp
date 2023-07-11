@@ -24,9 +24,9 @@ class WeatherRoomViewModel(application: Application) : AndroidViewModel(applicat
         allData = weatherRepositoryRoom.getAll
     }
 
-    fun insertWeather(weatherModel: WeatherModel) {
+    fun insertWeather(city: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            weatherRepositoryRoom.insertWeather(weatherModel)
+            weatherRepositoryRoom.insertWeather(WeatherModel(null, city))
         }
     }
 
