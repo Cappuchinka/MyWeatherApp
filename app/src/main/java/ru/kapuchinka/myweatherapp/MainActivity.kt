@@ -1,6 +1,5 @@
 package ru.kapuchinka.myweatherapp
 
-import android.Manifest
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -35,9 +34,7 @@ import coil.disk.DiskCache
 import coil.memory.MemoryCache
 import coil.request.CachePolicy
 import coil.request.ImageRequest
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import ru.kapuchinka.myweatherapp.ui.theme.MyMaterialTheme
-import ru.kapuchinka.myweatherapp.view.permission.RequestPermission
 import ru.kapuchinka.myweatherapp.view.weather.WeatherScreen
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherRoomViewModel
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherViewModel
@@ -47,7 +44,6 @@ class MainActivity : ComponentActivity() {
     private val weatherRoomViewModel: WeatherRoomViewModel by viewModels()
     private val context: Context = this
 
-    @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         weatherViewModel.setContext(this)
@@ -58,7 +54,6 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    RequestPermission(permission = Manifest.permission.ACCESS_FINE_LOCATION)
                     WeatherScreen(weatherViewModel = weatherViewModel, context = context)
                 }
             }
@@ -67,7 +62,11 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun GetWeatherByCity(city: String, weatherViewModel: WeatherViewModel, modifier: Modifier = Modifier) {
+fun GetWeatherByCity(
+    city: String,
+    weatherViewModel: WeatherViewModel,
+    modifier: Modifier = Modifier
+) {
     LaunchedEffect(city) {
         weatherViewModel.getWeatherByCity(city)
     }
@@ -82,13 +81,20 @@ fun GetWeatherByCity(city: String, weatherViewModel: WeatherViewModel, modifier:
             modifier = modifier
         )
         if (!weatherIconUrl.isNullOrBlank()) {
-            WeatherIcon(iconUrl = "https://openweathermap.org/img/w/${weatherIconUrl}.png", size = 128.dp)
+            WeatherIcon(
+                iconUrl = "https://openweathermap.org/img/w/${weatherIconUrl}.png",
+                size = 128.dp
+            )
         }
     }
 }
 
 @Composable
-fun GetWeatherByCurrentLocation(context: Context, weatherViewModel: WeatherViewModel, modifier: Modifier = Modifier) {
+fun GetWeatherByCurrentLocation(
+    context: Context,
+    weatherViewModel: WeatherViewModel,
+    modifier: Modifier = Modifier
+) {
     LaunchedEffect(context) {
         weatherViewModel.getWeatherByCurrentLocation(context)
     }
@@ -103,7 +109,11 @@ fun GetWeatherByCurrentLocation(context: Context, weatherViewModel: WeatherViewM
             modifier = modifier
         )
         if (!weatherIconUrl.isNullOrBlank()) {
-            LoadImageWithCache(iconUrl = "https://openweathermap.org/img/wn/${weatherIconUrl}.png", size = 128.dp, context = context)
+            LoadImageWithCache(
+                iconUrl = "https://openweathermap.org/img/wn/${weatherIconUrl}.png",
+                size = 128.dp,
+                context = context
+            )
         }
     }
 }
@@ -127,7 +137,8 @@ fun WeatherIcon(iconUrl: String, size: Dp) {
                 .crossfade(true)
                 .listener(
                     onSuccess = { request, metadata ->
-                        isLoading = false // Устанавливаем isLoading в false, когда изображение загружено
+                        isLoading =
+                            false // Устанавливаем isLoading в false, когда изображение загружено
                     },
                     onError = { request, throwable ->
                         // Обработка ошибки, если не удалось загрузить изображение
@@ -142,7 +153,7 @@ fun WeatherIcon(iconUrl: String, size: Dp) {
 }
 
 @Composable
-fun LoadImageWithCache(context: Context, iconUrl: String, size: Dp){
+fun LoadImageWithCache(context: Context, iconUrl: String, size: Dp) {
     val imageLoader = ImageLoader.Builder(context)
         .memoryCachePolicy(CachePolicy.ENABLED)
         .memoryCache {
@@ -169,7 +180,8 @@ fun LoadImageWithCache(context: Context, iconUrl: String, size: Dp){
             .crossfade(true)
             .listener(
                 onSuccess = { request, metadata ->
-                    isLoading = false // Устанавливаем isLoading в false, когда изображение загружено
+                    isLoading =
+                        false // Устанавливаем isLoading в false, когда изображение загружено
                 },
                 onError = { request, throwable ->
                     // Обработка ошибки, если не удалось загрузить изображение

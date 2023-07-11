@@ -1,5 +1,6 @@
 package ru.kapuchinka.myweatherapp.view.weather
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
@@ -39,40 +40,52 @@ import coil.disk.DiskCache
 import coil.memory.MemoryCache
 import coil.request.CachePolicy
 import coil.request.ImageRequest
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import ru.kapuchinka.myweatherapp.api.model.WeatherResponse
+import ru.kapuchinka.myweatherapp.view.permission.RequestPermission
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherViewModel
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun WeatherScreen(weatherViewModel: WeatherViewModel, context: Context) {
 
-    LaunchedEffect(context) {
-        weatherViewModel.setContext(context)
-        weatherViewModel.getWeatherByCurrentLocation(context)
-    }
+    RequestPermission(permission = Manifest.permission.ACCESS_FINE_LOCATION)
 
-    val weatherResponse = weatherViewModel.weatherResponse.value
+    val locationPermissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
 
-    Box(
-        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter
-    ) {
-        if (weatherResponse != null) {
-            Column(
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Title(weatherResponse.name)
-                InfoLastUpdated()
-                GetWeatherByCurrentLocation(weatherResponse, context)
-            }
-        } else {
-            Box(
-                modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
+    if (locationPermissionState.status.isGranted) {
+
+        LaunchedEffect(context) {
+            weatherViewModel.setContext(context)
+            weatherViewModel.getWeatherByCurrentLocation(context)
+        }
+
+        val weatherResponse = weatherViewModel.weatherResponse.value
+
+        Box(
+            modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter
+        ) {
+            if (weatherResponse != null) {
+                Column(
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Title(weatherResponse.name)
+                    InfoLastUpdated()
+                    GetWeatherByCurrentLocation(weatherResponse, context)
+                }
+            } else {
+                Box(
+                    modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
             }
         }
     }
