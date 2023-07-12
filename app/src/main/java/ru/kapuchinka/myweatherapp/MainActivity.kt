@@ -36,6 +36,7 @@ import coil.request.CachePolicy
 import coil.request.ImageRequest
 import ru.kapuchinka.myweatherapp.ui.theme.MyMaterialTheme
 import ru.kapuchinka.myweatherapp.view.weather.WeatherScreen
+import ru.kapuchinka.myweatherapp.view.weathers_list.LocationsList
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherRoomViewModel
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherViewModel
 
@@ -54,7 +55,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    WeatherScreen(weatherViewModel = weatherViewModel, context = context)
+//                    WeatherScreen(weatherViewModel = weatherViewModel, context = context)
+                    LocationsList(weatherRoomViewModel = weatherRoomViewModel, context = context)
                 }
             }
         }

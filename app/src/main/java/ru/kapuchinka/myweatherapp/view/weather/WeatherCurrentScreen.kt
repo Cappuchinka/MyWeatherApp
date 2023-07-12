@@ -47,7 +47,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import ru.kapuchinka.myweatherapp.api.model.WeatherResponse
-import ru.kapuchinka.myweatherapp.utils.db.receiver.NetworkChangeReceiver
+import ru.kapuchinka.myweatherapp.utils.receiver.NetworkChangeReceiver
 import ru.kapuchinka.myweatherapp.view.permission.RequestPermission
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherViewModel
 import java.time.Instant
