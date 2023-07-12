@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -171,10 +173,6 @@ private fun ThemedImageFavorite(
         showDialog.value = true
     }
 
-    fun dismissDialog() {
-        showDialog.value = false
-    }
-
     val painter = if (isDarkTheme) {
         painterResource(
             context.resources.getIdentifier(
@@ -198,8 +196,7 @@ private fun ThemedImageFavorite(
             }
         )
         if (showDialog.value) {
-//            Log.d("ADD_LOCATION_DIALOG", "ADD_LOCATION_DIALOG")
-            AddLocationDialog(weatherRoomViewModel = weatherRoomViewModel)
+            AddLocationDialog(weatherRoomViewModel = weatherRoomViewModel, showDialog = showDialog)
         }
     } else if (nameIcon == "no_favorite" || nameIcon == "favorite") {
         Image(
@@ -214,7 +211,10 @@ private fun ThemedImageFavorite(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AddLocationDialog(weatherRoomViewModel: WeatherRoomViewModel) {
+private fun AddLocationDialog(
+    weatherRoomViewModel: WeatherRoomViewModel,
+    showDialog: MutableState<Boolean>
+) {
     var city by remember { mutableStateOf("") }
 
     Dialog(onDismissRequest = {}) {
@@ -225,19 +225,31 @@ private fun AddLocationDialog(weatherRoomViewModel: WeatherRoomViewModel) {
                     color = MaterialTheme.colorScheme.onPrimary,
                     shape = RoundedCornerShape(25.dp, 25.dp, 25.dp, 25.dp)
                 )
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState()),
+            contentAlignment = Alignment.Center
         ) {
-            Column() {
-                TextField(value = city,
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Spacer(modifier = Modifier)
+                TextField(
+                    modifier = Modifier.fillMaxWidth(0.8f),
+                    value = city,
                     onValueChange = { newText -> city = newText },
                     label = { Text("Enter city") })
-                Button(onClick = {
-                    addLocation(
-                        weatherRoomViewModel = weatherRoomViewModel, city = city
-                    )
-                }) {
+                Spacer(modifier = Modifier)
+                Button(
+                    modifier = Modifier.fillMaxWidth(0.6f),
+                    onClick = {
+                        addLocation(
+                            weatherRoomViewModel = weatherRoomViewModel, city = city
+                        )
+                        showDialog.value = !showDialog.value
+                    }) {
                     Text(text = "Add")
                 }
+                Spacer(modifier = Modifier)
             }
         }
     }
