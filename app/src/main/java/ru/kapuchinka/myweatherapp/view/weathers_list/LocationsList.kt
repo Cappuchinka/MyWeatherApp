@@ -27,8 +27,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -94,7 +94,7 @@ private fun Title(context: Context, weatherRoomViewModel: WeatherRoomViewModel) 
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                ThemedImageFavorite(
+                AddLocationImage(
                     context = context,
                     nameIcon = "plus",
                     weatherRoomViewModel = weatherRoomViewModel
@@ -167,10 +167,47 @@ private fun ThemedImageFavorite(
     val isDarkTheme = isSystemInDarkTheme()
     val resourceType = "drawable"
 
+    val painter = if (isDarkTheme) {
+        painterResource(
+            context.resources.getIdentifier(
+                "${nameIcon}_dark", resourceType, context.packageName
+            )
+        )
+    } else {
+        painterResource(
+            context.resources.getIdentifier(
+                "${nameIcon}_light", resourceType, context.packageName
+            )
+        )
+    }
+
+    Image(
+        painter = painter,
+        contentDescription = nameIcon,
+        modifier = Modifier.clickable {
+            Log.d("ADD_TO_FAVORITE", "ADD_TO_FAVORITE")
+        }
+    )
+}
+
+@SuppressLint("DiscouragedApi")
+@Composable
+private fun AddLocationImage(
+    context: Context,
+    nameIcon: String,
+    weatherRoomViewModel: WeatherRoomViewModel
+) {
+    val isDarkTheme = isSystemInDarkTheme()
+    val resourceType = "drawable"
+
     val showDialog = remember { mutableStateOf(false) }
 
-    fun showDialog() {
+    fun openDialog() {
         showDialog.value = true
+    }
+
+    fun closeDialog() {
+        showDialog.value = false
     }
 
     val painter = if (isDarkTheme) {
@@ -187,25 +224,18 @@ private fun ThemedImageFavorite(
         )
     }
 
-    if (nameIcon == "plus") {
-        Image(
-            painter = painter,
-            contentDescription = nameIcon,
-            modifier = Modifier.clickable {
-                showDialog()
-            }
-        )
-        if (showDialog.value) {
-            AddLocationDialog(weatherRoomViewModel = weatherRoomViewModel, showDialog = showDialog)
+    Image(
+        painter = painter,
+        contentDescription = nameIcon,
+        modifier = Modifier.clickable {
+            openDialog()
         }
-    } else if (nameIcon == "no_favorite" || nameIcon == "favorite") {
-        Image(
-            painter = painter,
-            contentDescription = nameIcon,
-            modifier = Modifier.clickable {
-                Log.d("ADD_TO_FAVORITE", "ADD_TO_FAVORITE")
-            }
-        )
+    )
+
+    if (showDialog.value) {
+        AddLocationDialog(
+            weatherRoomViewModel = weatherRoomViewModel,
+            onDismiss = { closeDialog() })
     }
 }
 
@@ -213,11 +243,18 @@ private fun ThemedImageFavorite(
 @Composable
 private fun AddLocationDialog(
     weatherRoomViewModel: WeatherRoomViewModel,
-    showDialog: MutableState<Boolean>
+    onDismiss: () -> Unit
 ) {
     var city by remember { mutableStateOf("") }
 
-    Dialog(onDismissRequest = {}) {
+    val textFieldColors = TextFieldDefaults.textFieldColors(
+        textColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        disabledTextColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+        cursorColor = MaterialTheme.colorScheme.primary
+    )
+
+    Dialog(onDismissRequest = { onDismiss() }) {
         Box(
             modifier = Modifier
                 .padding(top = 20.dp, bottom = 20.dp)
@@ -229,33 +266,46 @@ private fun AddLocationDialog(
             contentAlignment = Alignment.Center
         ) {
             Column(
+                modifier = Modifier.fillMaxWidth(1f),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Spacer(modifier = Modifier)
+                Spacer(modifier = Modifier.size(10.dp))
                 TextField(
-                    modifier = Modifier.fillMaxWidth(0.8f),
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.background)
+                        .fillMaxWidth(0.9f),
                     value = city,
                     onValueChange = { newText -> city = newText },
-                    label = { Text("Enter city") })
-                Spacer(modifier = Modifier)
+                    label = { Text("Enter city") },
+                    colors = textFieldColors
+                )
+                Spacer(modifier = Modifier.size(5.dp))
                 Button(
                     modifier = Modifier.fillMaxWidth(0.6f),
                     onClick = {
                         addLocation(
                             weatherRoomViewModel = weatherRoomViewModel, city = city
                         )
-                        showDialog.value = !showDialog.value
+                        onDismiss()
                     }) {
                     Text(text = "Add")
                 }
-                Spacer(modifier = Modifier)
+                Spacer(modifier = Modifier.size(5.dp))
             }
         }
     }
 }
 
 private fun addLocation(weatherRoomViewModel: WeatherRoomViewModel, city: String) {
-    Log.d("ADD_CITY", "ADD: ${city.trim().toLowerCase().capitalize()}")
-    weatherRoomViewModel.insertWeather(city.trim().toLowerCase().capitalize())
+    val mCity = city.trim().toLowerCase().capitalize()
+    if (checkInputCity(mCity)) {
+        Log.d("ADD_CITY", "ADD: $mCity")
+        weatherRoomViewModel.insertWeather(mCity)
+    }
+}
+
+private fun checkInputCity(city: String): Boolean {
+    val regex = "[A-Za-zА-Яа-я]+(-[0-9]+)?"
+    return city.matches(regex.toRegex())
 }
