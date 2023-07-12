@@ -56,7 +56,11 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
 //                    WeatherScreen(weatherViewModel = weatherViewModel, context = context)
-                    LocationsList(weatherRoomViewModel = weatherRoomViewModel, context = context)
+                    LocationsList(
+                        weatherRoomViewModel = weatherRoomViewModel,
+                        weatherViewModel = weatherViewModel,
+                        context = context
+                    )
                 }
             }
         }

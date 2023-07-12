@@ -42,14 +42,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import ru.kapuchinka.myweatherapp.utils.db.model.WeatherModel
+import ru.kapuchinka.myweatherapp.view.weather.ShowWeatherDialog
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherRoomViewModel
+import ru.kapuchinka.myweatherapp.viewmodel.WeatherViewModel
 
 @Composable
-fun LocationsList(weatherRoomViewModel: WeatherRoomViewModel, context: Context) {
+fun LocationsList(
+    weatherRoomViewModel: WeatherRoomViewModel,
+    weatherViewModel: WeatherViewModel,
+    context: Context
+) {
     Column() {
         Title(context = context, weatherRoomViewModel = weatherRoomViewModel)
         GetListCities(
-            weatherRoomViewModel = weatherRoomViewModel, context = context
+            weatherRoomViewModel = weatherRoomViewModel,
+            weatherViewModel = weatherViewModel,
+            context = context
         )
     }
 }
@@ -106,14 +114,30 @@ private fun Title(context: Context, weatherRoomViewModel: WeatherRoomViewModel) 
 
 @Composable
 private fun CardItem(
-    weatherRoomViewModel: WeatherRoomViewModel, weatherModel: WeatherModel, context: Context
+    weatherRoomViewModel: WeatherRoomViewModel,
+    weatherViewModel: WeatherViewModel,
+    weatherModel: WeatherModel,
+    context: Context
 ) {
+    val showDialog = remember { mutableStateOf(false) }
+    val selectedCity = remember { mutableStateOf("") }
+
+    fun openDialog() {
+        selectedCity.value = weatherModel.city
+        showDialog.value = true
+    }
+
+    fun closeDialog() {
+        showDialog.value = false
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.background)
             .padding(start = 10.dp, end = 10.dp, top = 10.dp, bottom = 5.dp)
             .shadow(elevation = 4.dp, shape = RoundedCornerShape(15.dp))
+            .clickable { openDialog() }
     ) {
         Row(
             modifier = Modifier
@@ -137,10 +161,22 @@ private fun CardItem(
             }
         }
     }
+
+    if (showDialog.value) {
+        ShowWeatherDialog(
+            city = selectedCity.value,
+            weatherViewModel = weatherViewModel,
+            context = context,
+            onDismiss = { closeDialog() })
+    }
 }
 
 @Composable
-private fun GetListCities(weatherRoomViewModel: WeatherRoomViewModel, context: Context) {
+private fun GetListCities(
+    weatherRoomViewModel: WeatherRoomViewModel,
+    weatherViewModel: WeatherViewModel,
+    context: Context
+) {
 
     val allData: List<WeatherModel> by weatherRoomViewModel.allData.observeAsState(emptyList())
 
@@ -152,6 +188,7 @@ private fun GetListCities(weatherRoomViewModel: WeatherRoomViewModel, context: C
         items(allData.size) { city ->
             CardItem(
                 weatherRoomViewModel = weatherRoomViewModel,
+                weatherViewModel = weatherViewModel,
                 weatherModel = allData[city],
                 context = context
             )
