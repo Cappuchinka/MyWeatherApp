@@ -1,4 +1,4 @@
-package ru.kapuchinka.myweatherapp.utils.db.receiver
+package ru.kapuchinka.myweatherapp.utils.receiver
 
 import android.content.BroadcastReceiver
 import android.content.Context

@@ -1,6 +1,5 @@
 package ru.kapuchinka.myweatherapp.view.weather
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.IntentFilter
@@ -20,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -34,89 +34,94 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.disk.DiskCache
 import coil.memory.MemoryCache
 import coil.request.CachePolicy
 import coil.request.ImageRequest
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
 import ru.kapuchinka.myweatherapp.api.model.WeatherResponse
 import ru.kapuchinka.myweatherapp.utils.receiver.NetworkChangeReceiver
-import ru.kapuchinka.myweatherapp.view.permission.RequestPermission
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherViewModel
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun WeatherScreen(weatherViewModel: WeatherViewModel, context: Context) {
-
-    RequestPermission(permission = Manifest.permission.ACCESS_FINE_LOCATION)
-
-    val locationPermissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
+fun ShowWeatherDialog(
+    city: String,
+    weatherViewModel: WeatherViewModel,
+    context: Context,
+    onDismiss: () -> Unit
+) {
     val isInternetConnected = remember { mutableStateOf(false) }
 
     val networkChangeReceiver = remember {
         NetworkChangeReceiver { isConnected ->
             isInternetConnected.value = isConnected
             if (isConnected) {
-                weatherViewModel.getWeatherByCurrentLocation(context)
+                weatherViewModel.getWeatherByCity(city)
             }
         }
     }
 
-    if (locationPermissionState.status.isGranted) {
+    DisposableEffect(Unit) {
+        val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+        context.registerReceiver(networkChangeReceiver, filter)
 
-        DisposableEffect(Unit) {
-            val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
-            context.registerReceiver(networkChangeReceiver, filter)
-
-            onDispose {
-                context.unregisterReceiver(networkChangeReceiver)
-            }
+        onDispose {
+            context.unregisterReceiver(networkChangeReceiver)
         }
+    }
 
-        LaunchedEffect(Unit) {
-
-            isInternetConnected.value = isInternetConnected(context)
-            if (isInternetConnected.value) {
-                weatherViewModel.setContext(context)
-                weatherViewModel.getWeatherByCurrentLocation(context)
-            }
-        }
-
-        val weatherResponse = weatherViewModel.weatherResponse.value
-
+    LaunchedEffect(Unit) {
+        isInternetConnected.value = isInternetConnected(context)
         if (isInternetConnected.value) {
-            Box(
-                modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter
-            ) {
-                if (weatherResponse != null) {
+            weatherViewModel.setContext(context)
+            weatherViewModel.getWeatherByCity(city)
+        }
+    }
+
+    val weatherResponse = weatherViewModel.weatherResponse.value
+
+    if (isInternetConnected.value) {
+        Dialog(onDismissRequest = { onDismiss() }) {
+            if (weatherResponse != null) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight(0.9f)
+                        .background(
+                            color = MaterialTheme.colorScheme.background,
+                            shape = RoundedCornerShape(35.dp, 35.dp, 35.dp, 35.dp)
+                        ),
+                ) {
                     Column(
                         verticalArrangement = Arrangement.Top,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Title(weatherResponse.name)
-                        InfoLastUpdated()
-                        GetWeatherByCurrentLocation(weatherResponse, context)
-                    }
-                } else {
-                    Box(
-                        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
+                        InfoLastUpdated(weatherResponse.name)
+                        GetWeatherByCity(weatherResponse, context)
                     }
                 }
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize(0.9f)
+                        .background(MaterialTheme.colorScheme.background),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
             }
-        } else {
+        }
+    } else {
+        Dialog(onDismissRequest = { onDismiss() }) {
             Box(
                 modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
             ) {
@@ -128,29 +133,7 @@ fun WeatherScreen(weatherViewModel: WeatherViewModel, context: Context) {
 
 
 @Composable
-private fun Title(city: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxHeight(0.09f)
-            .background(MaterialTheme.colorScheme.primary)
-    ) {
-        Row(modifier = Modifier.fillMaxSize()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxHeight(1f)
-                    .padding(15.dp),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                Text(
-                    text = city, color = MaterialTheme.colorScheme.onTertiary, fontSize = 22.sp
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun InfoLastUpdated() {
+private fun InfoLastUpdated(city: String) {
     val date = getDate()
     Box(
         modifier = Modifier
@@ -158,12 +141,19 @@ private fun InfoLastUpdated() {
             .padding(top = 15.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = "LAST UPDATED AT: $date")
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(text = city, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text(text = "LAST UPDATED AT: $date", fontSize = 15.sp)
+        }
+
     }
 }
 
 @Composable
-private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, context: Context) {
+private fun GetWeatherByCity(weatherResponse: WeatherResponse, context: Context) {
     val weatherIconUrl = weatherResponse.weather[0].icon
 
     Column(
@@ -191,7 +181,7 @@ private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, contex
                             LoadImageWithCache(
                                 context = context,
                                 iconUrl = "https://openweathermap.org/img/wn/${weatherIconUrl}@2x.png",
-                                size = 128.dp
+                                size = 96.dp
                             )
                         }
                         Text(text = "Cloud: ${weatherResponse.clouds.all}%")
@@ -201,11 +191,11 @@ private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, contex
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "${weatherResponse.main.temp}°C", fontSize = 50.sp
+                            text = "${weatherResponse.main.temp}°C", fontSize = 45.sp
                         ) // temperature
                         Text(
                             text = "Feel like: ${weatherResponse.main.feels_like}°C",
-                            fontSize = 20.sp
+                            fontSize = 15.sp
                         ) // temperature feels like
                     }
                 }
@@ -217,7 +207,7 @@ private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, contex
         }
         Row(
             modifier = Modifier
-                .padding(5.dp)
+                .padding(0.dp)
                 .fillMaxWidth(1f)
                 .fillMaxHeight(0.2f),
             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -227,19 +217,19 @@ private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, contex
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Box(modifier = Modifier.size(56.dp)) {
+                Box(modifier = Modifier.size(48.dp)) {
                     ThemedImage(context = context, nameIcon = "temp_min")
                 }
-                Text(text = "${weatherResponse.main.temp_min}°C", fontSize = 20.sp)
+                Text(text = "${weatherResponse.main.temp_min}°C", fontSize = 15.sp)
             }
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Box(modifier = Modifier.size(56.dp)) {
+                Box(modifier = Modifier.size(48.dp)) {
                     ThemedImage(context = context, nameIcon = "temp_max")
                 }
-                Text(text = "${weatherResponse.main.temp_max}°C", fontSize = 20.sp)
+                Text(text = "${weatherResponse.main.temp_max}°C", fontSize = 15.sp)
             }
         }
         Column(
@@ -255,7 +245,7 @@ private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, contex
             ) {
                 Box(
                     modifier = Modifier
-                        .size(56.dp)
+                        .size(48.dp)
                         .padding(3.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -269,7 +259,7 @@ private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, contex
             ) {
                 Box(
                     modifier = Modifier
-                        .size(56.dp)
+                        .size(48.dp)
                         .padding(3.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -283,7 +273,7 @@ private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, contex
             ) {
                 Box(
                     modifier = Modifier
-                        .size(56.dp)
+                        .size(48.dp)
                         .padding(3.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -304,21 +294,21 @@ private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, contex
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Box(modifier = Modifier.size(80.dp)) {
+                Box(modifier = Modifier.size(64.dp)) {
                     ThemedImage(context = context, nameIcon = "sunrise")
                 }
                 Text(
-                    text = getTime(weatherResponse.sys.sunrise), fontSize = 20.sp
+                    text = getTime(weatherResponse.sys.sunrise), fontSize = 15.sp
                 )
             }
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Box(modifier = Modifier.size(80.dp)) {
+                Box(modifier = Modifier.size(64.dp)) {
                     ThemedImage(context = context, nameIcon = "sunset")
                 }
-                Text(text = getTime(weatherResponse.sys.sunset), fontSize = 20.sp)
+                Text(text = getTime(weatherResponse.sys.sunset), fontSize = 15.sp)
             }
         }
     }
