@@ -1,4 +1,4 @@
-package ru.kapuchinka.myweatherapp.utils.permission
+package ru.kapuchinka.myweatherapp.view.permission
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -17,12 +17,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -35,15 +37,16 @@ fun CustomDialogLocation(
     onClick: () -> Unit
 ) {
     Dialog(
-        onDismissRequest = { enableLocation.value = false}
+        onDismissRequest = { enableLocation.value = false }
     ) {
         Box(
-            modifier = Modifier.padding(top = 20.dp, bottom = 20.dp)
-                // .width(300.dp)
-                // .height(164.dp)
+            modifier = Modifier
+                .padding(top = 20.dp, bottom = 20.dp)
+//                 .width(300.dp)
+//                 .height(164.dp)
                 .background(
                     color = MaterialTheme.colorScheme.onPrimary,
-                    shape = RoundedCornerShape(25.dp,5.dp,25.dp,5.dp)
+                    shape = RoundedCornerShape(25.dp, 25.dp, 25.dp, 25.dp)
                 )
                 .verticalScroll(rememberScrollState())
 
@@ -62,7 +65,7 @@ fun CustomDialogLocation(
                     letterSpacing = 2.sp,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.tertiary,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 //.........................Text : description
@@ -74,21 +77,19 @@ fun CustomDialogLocation(
                         .fillMaxWidth(),
                     letterSpacing = 1.sp,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.tertiary,
                 )
                 //.........................Spacer
                 Spacer(modifier = Modifier.height(24.dp))
 
                 //.........................Button : OK button
-                val cornerRadius = 16.dp
-                val gradientColors = listOf(Color(0xFFff669f), Color(0xFFff8961))
-                val roundedCornerShape = RoundedCornerShape(topStart = 30.dp,bottomEnd = 30.dp)
+                val cornerRadius = 10.dp
 
                 Button(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 32.dp, end = 32.dp),
-                    onClick=onClick,
+                    onClick = onClick,
                     contentPadding = PaddingValues(),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Transparent
@@ -100,14 +101,13 @@ fun CustomDialogLocation(
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(
-                                brush = Brush.horizontalGradient(colors = gradientColors),
-                                shape = roundedCornerShape
+                                MaterialTheme.colorScheme.tertiary
                             )
                             .padding(horizontal = 16.dp, vertical = 8.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text ="Enable",
+                            text = "Enable",
                             fontSize = 20.sp,
                             color = Color.White
                         )
@@ -116,4 +116,15 @@ fun CustomDialogLocation(
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun CustomDialogLocationPreview() {
+    CustomDialogLocation(
+        title = "Preview Title",
+        desc = "Preview Description",
+        enableLocation = remember { mutableStateOf(false) },
+        onClick = { /* Обработчик нажатия */ }
+    )
 }

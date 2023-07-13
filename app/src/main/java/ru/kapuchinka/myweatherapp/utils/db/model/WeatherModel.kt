@@ -8,6 +8,5 @@ import androidx.room.PrimaryKey
 data class WeatherModel(
     @PrimaryKey(autoGenerate = true) @ColumnInfo("id") val id: Int? = null,
     @ColumnInfo("city") val city: String,
-    @ColumnInfo("lat") val lat: Double,
-    @ColumnInfo("lon") val lon: Double
+    @ColumnInfo("is_favorite") val is_favorite: Boolean
 )

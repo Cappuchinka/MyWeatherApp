@@ -15,6 +15,12 @@ interface WeatherDao {
     @Query("SELECT * FROM weather_table ORDER BY city ASC")
     fun getAll(): LiveData<List<WeatherModel>>
 
-    @Query("SELECT * FROM weather_table WHERE id = :id")
-    suspend fun getWeatherByID(id: Int) : WeatherModel
+    @Query("SELECT * FROM weather_table WHERE city = :city")
+    suspend fun getWeatherByName(city: String): WeatherModel
+
+    @Query("SELECT * FROM weather_table WHERE is_favorite = :isFavorite ORDER BY city ASC")
+    fun getFavoritesLocation(isFavorite: Boolean): LiveData<List<WeatherModel>>
+
+    @Query("UPDATE weather_table SET is_favorite = :isFavorite WHERE city = :city")
+    suspend fun updateCity(isFavorite: Boolean, city: String)
 }

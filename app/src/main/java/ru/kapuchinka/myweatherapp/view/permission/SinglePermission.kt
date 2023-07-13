@@ -1,4 +1,4 @@
-package ru.kapuchinka.myweatherapp.utils.permission
+package ru.kapuchinka.myweatherapp.view.permission
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
