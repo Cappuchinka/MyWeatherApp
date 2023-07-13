@@ -33,12 +33,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,18 +47,14 @@ import ru.kapuchinka.myweatherapp.viewmodel.WeatherRoomViewModel
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherViewModel
 
 @Composable
-fun LocationsList(
+fun FavoritesList(
     weatherRoomViewModel: WeatherRoomViewModel,
     weatherViewModel: WeatherViewModel,
     context: Context
 ) {
-
-    val allData: List<WeatherModel> by weatherRoomViewModel.allData.observeAsState(emptyList())
-
     Column() {
         Title(context = context, weatherRoomViewModel = weatherRoomViewModel)
         GetListCities(
-            allData = allData,
             weatherRoomViewModel = weatherRoomViewModel,
             weatherViewModel = weatherViewModel,
             context = context
@@ -92,26 +86,9 @@ private fun Title(context: Context, weatherRoomViewModel: WeatherRoomViewModel) 
                 contentAlignment = Alignment.CenterStart
             ) {
                 Text(
-                    text = "Locations",
+                    text = "Favorites",
                     color = MaterialTheme.colorScheme.onTertiary,
                     fontSize = 25.sp
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .padding(
-                        top = 3.dp,
-                        start = 3.dp,
-                        end = 15.dp,
-                        bottom = 3.dp
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                AddLocationImage(
-                    context = context,
-                    nameIcon = "plus",
-                    weatherRoomViewModel = weatherRoomViewModel
                 )
             }
         }
@@ -127,7 +104,6 @@ private fun CardItem(
 ) {
     val showDialog = remember { mutableStateOf(false) }
     val selectedCity = remember { mutableStateOf("") }
-
 
     fun openDialog() {
         selectedCity.value = weatherModel.city
@@ -161,7 +137,6 @@ private fun CardItem(
             )
             Box(modifier = Modifier.size(36.dp)) {
                 ThemedImageFavorite(
-                    weatherModel = weatherModel,
                     context = context,
                     "no_favorite",
                     weatherRoomViewModel = weatherRoomViewModel
@@ -181,22 +156,23 @@ private fun CardItem(
 
 @Composable
 private fun GetListCities(
-    allData: List<WeatherModel>,
     weatherRoomViewModel: WeatherRoomViewModel,
     weatherViewModel: WeatherViewModel,
     context: Context
 ) {
+
+    val favoritesLocations: List<WeatherModel> by weatherRoomViewModel.favoritesLocations.observeAsState(emptyList())
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        items(allData.size) { city ->
+        items(favoritesLocations.size) { city ->
             CardItem(
                 weatherRoomViewModel = weatherRoomViewModel,
                 weatherViewModel = weatherViewModel,
-                weatherModel = allData[city],
+                weatherModel = favoritesLocations[city],
                 context = context
             )
         }
@@ -206,49 +182,12 @@ private fun GetListCities(
 @SuppressLint("DiscouragedApi")
 @Composable
 private fun ThemedImageFavorite(
-    weatherModel: WeatherModel,
-    context: Context,
-    nameIcon: String,
-    weatherRoomViewModel: WeatherRoomViewModel
+    context: Context, nameIcon: String, weatherRoomViewModel: WeatherRoomViewModel
 ) {
     val isDarkTheme = isSystemInDarkTheme()
     val resourceType = "drawable"
 
-    var isFavorite by remember { mutableStateOf(weatherModel.is_favorite) }
-
-
-    val painter = if (isFavorite) {
-        getPainter(isDarkTheme, context, "favorite", resourceType)
-    } else {
-        getPainter(isDarkTheme, context, "no_favorite", resourceType)
-    }
-
-    val updatedPainter = rememberUpdatedState(painter)
-
-    Image(
-        painter = updatedPainter.value,
-        contentDescription = nameIcon,
-        modifier = Modifier.clickable {
-            if (!isFavorite) {
-                weatherRoomViewModel.updateCity(true, weatherModel.city)
-                Log.d("ADD_TO_FAVORITE", weatherModel.city)
-            } else {
-                weatherRoomViewModel.updateCity(false, weatherModel.city)
-                Log.d("REMOVE_FROM_FAVORITE", weatherModel.city)
-            }
-            isFavorite = !isFavorite
-        }
-    )
-}
-
-@Composable
-private fun getPainter(
-    isDarkTheme: Boolean,
-    context: Context,
-    nameIcon: String,
-    resourceType: String
-): Painter {
-    return if (isDarkTheme) {
+    val painter = if (isDarkTheme) {
         painterResource(
             context.resources.getIdentifier(
                 "${nameIcon}_dark", resourceType, context.packageName
@@ -261,6 +200,14 @@ private fun getPainter(
             )
         )
     }
+
+    Image(
+        painter = painter,
+        contentDescription = nameIcon,
+        modifier = Modifier.clickable {
+            Log.d("ADD_TO_FAVORITE", "ADD_TO_FAVORITE")
+        }
+    )
 }
 
 @SuppressLint("DiscouragedApi")
