@@ -163,7 +163,7 @@ private fun CardItem(
                 ThemedImageFavorite(
                     weatherModel = weatherModel,
                     context = context,
-                    "no_favorite",
+                    nameIcon = "no_favorite",
                     weatherRoomViewModel = weatherRoomViewModel
                 )
             }
@@ -215,7 +215,6 @@ private fun ThemedImageFavorite(
     val resourceType = "drawable"
 
     var isFavorite by remember { mutableStateOf(weatherModel.is_favorite) }
-
 
     val painter = if (isFavorite) {
         getPainter(isDarkTheme, context, "favorite", resourceType)

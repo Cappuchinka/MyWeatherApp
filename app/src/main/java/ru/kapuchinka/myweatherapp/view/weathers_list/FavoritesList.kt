@@ -33,6 +33,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -137,8 +138,9 @@ private fun CardItem(
             )
             Box(modifier = Modifier.size(36.dp)) {
                 ThemedImageFavorite(
+                    weatherModel = weatherModel,
                     context = context,
-                    "no_favorite",
+                    nameIcon = "favorite",
                     weatherRoomViewModel = weatherRoomViewModel
                 )
             }
@@ -182,7 +184,10 @@ private fun GetListCities(
 @SuppressLint("DiscouragedApi")
 @Composable
 private fun ThemedImageFavorite(
-    context: Context, nameIcon: String, weatherRoomViewModel: WeatherRoomViewModel
+    weatherModel: WeatherModel,
+    context: Context,
+    nameIcon: String,
+    weatherRoomViewModel: WeatherRoomViewModel
 ) {
     val isDarkTheme = isSystemInDarkTheme()
     val resourceType = "drawable"
@@ -201,11 +206,14 @@ private fun ThemedImageFavorite(
         )
     }
 
+    val updatedPainter = rememberUpdatedState(painter)
+
     Image(
-        painter = painter,
+        painter = updatedPainter.value,
         contentDescription = nameIcon,
         modifier = Modifier.clickable {
-            Log.d("ADD_TO_FAVORITE", "ADD_TO_FAVORITE")
+            weatherRoomViewModel.updateCity(false, weatherModel.city)
+            Log.d("REMOVE_TO_FAVORITE", weatherModel.city)
         }
     )
 }
