@@ -57,7 +57,7 @@ fun LocationsList(
 
     val allData: List<WeatherModel> by weatherRoomViewModel.allData.observeAsState(emptyList())
 
-    Column() {
+    Column(modifier = Modifier.padding(bottom = 56.dp)) {
         Title(context = context, weatherRoomViewModel = weatherRoomViewModel)
         GetListCities(
             allData = allData,
@@ -85,7 +85,7 @@ private fun Title(context: Context, weatherRoomViewModel: WeatherRoomViewModel) 
                     .fillMaxHeight(1f)
                     .padding(
                         top = 3.dp,
-                        start = 15.dp,
+                        start = 22.dp,
                         end = 3.dp,
                         bottom = 3.dp
                     ),
