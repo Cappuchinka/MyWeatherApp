@@ -53,7 +53,7 @@ fun FavoritesList(
     weatherViewModel: WeatherViewModel,
     context: Context
 ) {
-    Column() {
+    Column(modifier = Modifier.padding(bottom = 56.dp)) {
         Title(context = context, weatherRoomViewModel = weatherRoomViewModel)
         GetListCities(
             weatherRoomViewModel = weatherRoomViewModel,
@@ -80,7 +80,7 @@ private fun Title(context: Context, weatherRoomViewModel: WeatherRoomViewModel) 
                     .fillMaxHeight(1f)
                     .padding(
                         top = 3.dp,
-                        start = 15.dp,
+                        start = 22.dp,
                         end = 3.dp,
                         bottom = 3.dp
                     ),
@@ -163,20 +163,36 @@ private fun GetListCities(
     context: Context
 ) {
 
-    val favoritesLocations: List<WeatherModel> by weatherRoomViewModel.favoritesLocations.observeAsState(emptyList())
+    val favoritesLocations: List<WeatherModel> by weatherRoomViewModel.favoritesLocations.observeAsState(
+        emptyList()
+    )
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        items(favoritesLocations.size) { city ->
-            CardItem(
-                weatherRoomViewModel = weatherRoomViewModel,
-                weatherViewModel = weatherViewModel,
-                weatherModel = favoritesLocations[city],
-                context = context
+    if (favoritesLocations.isEmpty()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 56.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Your Favorites List is empty",
+                fontSize = 20.sp
             )
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            items(favoritesLocations.size) { city ->
+                CardItem(
+                    weatherRoomViewModel = weatherRoomViewModel,
+                    weatherViewModel = weatherViewModel,
+                    weatherModel = favoritesLocations[city],
+                    context = context
+                )
+            }
         }
     }
 }
@@ -216,124 +232,4 @@ private fun ThemedImageFavorite(
             Log.d("REMOVE_TO_FAVORITE", weatherModel.city)
         }
     )
-}
-
-@SuppressLint("DiscouragedApi")
-@Composable
-private fun AddLocationImage(
-    context: Context,
-    nameIcon: String,
-    weatherRoomViewModel: WeatherRoomViewModel
-) {
-    val isDarkTheme = isSystemInDarkTheme()
-    val resourceType = "drawable"
-
-    val showDialog = remember { mutableStateOf(false) }
-
-    fun openDialog() {
-        showDialog.value = true
-    }
-
-    fun closeDialog() {
-        showDialog.value = false
-    }
-
-    val painter = if (isDarkTheme) {
-        painterResource(
-            context.resources.getIdentifier(
-                "${nameIcon}_dark", resourceType, context.packageName
-            )
-        )
-    } else {
-        painterResource(
-            context.resources.getIdentifier(
-                "${nameIcon}_light", resourceType, context.packageName
-            )
-        )
-    }
-
-    Image(
-        painter = painter,
-        contentDescription = nameIcon,
-        modifier = Modifier.clickable {
-            openDialog()
-        }
-    )
-
-    if (showDialog.value) {
-        AddLocationDialog(
-            weatherRoomViewModel = weatherRoomViewModel,
-            onDismiss = { closeDialog() })
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun AddLocationDialog(
-    weatherRoomViewModel: WeatherRoomViewModel,
-    onDismiss: () -> Unit
-) {
-    var city by remember { mutableStateOf("") }
-
-    val textFieldColors = TextFieldDefaults.textFieldColors(
-        textColor = MaterialTheme.colorScheme.onSecondaryContainer,
-        disabledTextColor = MaterialTheme.colorScheme.onSecondaryContainer,
-        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-        cursorColor = MaterialTheme.colorScheme.primary
-    )
-
-    Dialog(onDismissRequest = { onDismiss() }) {
-        Box(
-            modifier = Modifier
-                .padding(top = 20.dp, bottom = 20.dp)
-                .background(
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    shape = RoundedCornerShape(25.dp, 25.dp, 25.dp, 25.dp)
-                )
-                .verticalScroll(rememberScrollState()),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(1f),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Spacer(modifier = Modifier.size(10.dp))
-                TextField(
-                    modifier = Modifier
-                        .background(MaterialTheme.colorScheme.background)
-                        .fillMaxWidth(0.9f),
-                    value = city,
-                    onValueChange = { newText -> city = newText },
-                    label = { Text("Enter city") },
-                    colors = textFieldColors
-                )
-                Spacer(modifier = Modifier.size(5.dp))
-                Button(
-                    modifier = Modifier.fillMaxWidth(0.6f),
-                    onClick = {
-                        addLocation(
-                            weatherRoomViewModel = weatherRoomViewModel, city = city
-                        )
-                        onDismiss()
-                    }) {
-                    Text(text = "Add")
-                }
-                Spacer(modifier = Modifier.size(5.dp))
-            }
-        }
-    }
-}
-
-private fun addLocation(weatherRoomViewModel: WeatherRoomViewModel, city: String) {
-    val mCity = city.trim().toLowerCase().capitalize()
-    if (checkInputCity(mCity)) {
-        Log.d("ADD_CITY", "ADD: $mCity")
-        weatherRoomViewModel.insertWeather(mCity)
-    }
-}
-
-private fun checkInputCity(city: String): Boolean {
-    val regex = "[A-Za-zА-Яа-я]+(-[0-9]+)?"
-    return city.matches(regex.toRegex())
 }

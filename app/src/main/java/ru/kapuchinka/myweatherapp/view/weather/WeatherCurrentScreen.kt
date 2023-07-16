@@ -57,7 +57,7 @@ import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun WeatherScreen(weatherViewModel: WeatherViewModel, context: Context) {
+fun WeatherCurrentLocationScreen(weatherViewModel: WeatherViewModel, context: Context) {
 
     RequestPermission(permission = Manifest.permission.ACCESS_FINE_LOCATION)
 
@@ -138,11 +138,16 @@ private fun Title(city: String) {
             Box(
                 modifier = Modifier
                     .fillMaxHeight(1f)
-                    .padding(15.dp),
+                    .padding(
+                        top = 3.dp,
+                        start = 20.dp,
+                        end = 3.dp,
+                        bottom = 3.dp
+                    ),
                 contentAlignment = Alignment.CenterStart
             ) {
                 Text(
-                    text = city, color = MaterialTheme.colorScheme.onTertiary, fontSize = 22.sp
+                    text = city, color = MaterialTheme.colorScheme.onTertiary, fontSize = 25.sp
                 )
             }
         }
@@ -227,7 +232,7 @@ private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, contex
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Box(modifier = Modifier.size(56.dp)) {
+                Box(modifier = Modifier.size(48.dp)) {
                     ThemedImage(context = context, nameIcon = "temp_min")
                 }
                 Text(text = "${weatherResponse.main.temp_min}°C", fontSize = 20.sp)
@@ -236,7 +241,7 @@ private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, contex
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Box(modifier = Modifier.size(56.dp)) {
+                Box(modifier = Modifier.size(48.dp)) {
                     ThemedImage(context = context, nameIcon = "temp_max")
                 }
                 Text(text = "${weatherResponse.main.temp_max}°C", fontSize = 20.sp)
@@ -245,7 +250,12 @@ private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, contex
         Column(
             modifier = Modifier
                 .fillMaxWidth(1f)
-                .padding(20.dp),
+                .padding(
+                    top = 5.dp,
+                    start = 20.dp,
+                    end = 0.dp,
+                    bottom = 0.dp
+                ),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
@@ -255,13 +265,16 @@ private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, contex
             ) {
                 Box(
                     modifier = Modifier
-                        .size(56.dp)
+                        .size(48.dp)
                         .padding(3.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     ThemedImage(context = context, nameIcon = "wind")
                 }
-                Text(text = "Wind: ${weatherResponse.wind.speed} meter/sec")
+                Text(
+                    modifier = Modifier.padding(3.dp),
+                    text = "Wind: ${weatherResponse.wind.speed} meter/sec"
+                )
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -269,13 +282,16 @@ private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, contex
             ) {
                 Box(
                     modifier = Modifier
-                        .size(56.dp)
+                        .size(48.dp)
                         .padding(3.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     ThemedImage(context = context, nameIcon = "pressure")
                 }
-                Text(text = "Pressure: ${weatherResponse.main.pressure} hPa")
+                Text(
+                    modifier = Modifier.padding(3.dp),
+                    text = "Pressure: ${weatherResponse.main.pressure} hPa"
+                )
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -283,13 +299,16 @@ private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, contex
             ) {
                 Box(
                     modifier = Modifier
-                        .size(56.dp)
+                        .size(48.dp)
                         .padding(3.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     ThemedImage(context = context, nameIcon = "humidity")
                 }
-                Text(text = "Humidity: ${weatherResponse.main.humidity}%")
+                Text(
+                    modifier = Modifier.padding(3.dp),
+                    text = "Humidity: ${weatherResponse.main.humidity}%"
+                )
             }
         }
         Row(
@@ -304,7 +323,7 @@ private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, contex
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Box(modifier = Modifier.size(80.dp)) {
+                Box(modifier = Modifier.size(72.dp)) {
                     ThemedImage(context = context, nameIcon = "sunrise")
                 }
                 Text(
@@ -315,7 +334,7 @@ private fun GetWeatherByCurrentLocation(weatherResponse: WeatherResponse, contex
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Box(modifier = Modifier.size(80.dp)) {
+                Box(modifier = Modifier.size(72.dp)) {
                     ThemedImage(context = context, nameIcon = "sunset")
                 }
                 Text(text = getTime(weatherResponse.sys.sunset), fontSize = 20.sp)
