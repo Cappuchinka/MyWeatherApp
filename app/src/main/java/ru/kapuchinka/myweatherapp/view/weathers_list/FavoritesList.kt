@@ -163,20 +163,36 @@ private fun GetListCities(
     context: Context
 ) {
 
-    val favoritesLocations: List<WeatherModel> by weatherRoomViewModel.favoritesLocations.observeAsState(emptyList())
+    val favoritesLocations: List<WeatherModel> by weatherRoomViewModel.favoritesLocations.observeAsState(
+        emptyList()
+    )
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        items(favoritesLocations.size) { city ->
-            CardItem(
-                weatherRoomViewModel = weatherRoomViewModel,
-                weatherViewModel = weatherViewModel,
-                weatherModel = favoritesLocations[city],
-                context = context
+    if (favoritesLocations.isEmpty()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 56.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Your Favorites List is empty",
+                fontSize = 20.sp
             )
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            items(favoritesLocations.size) { city ->
+                CardItem(
+                    weatherRoomViewModel = weatherRoomViewModel,
+                    weatherViewModel = weatherViewModel,
+                    weatherModel = favoritesLocations[city],
+                    context = context
+                )
+            }
         }
     }
 }
@@ -216,9 +232,4 @@ private fun ThemedImageFavorite(
             Log.d("REMOVE_TO_FAVORITE", weatherModel.city)
         }
     )
-}
-
-private fun checkInputCity(city: String): Boolean {
-    val regex = "[A-Za-zА-Яа-я]+(-[0-9]+)?"
-    return city.matches(regex.toRegex())
 }

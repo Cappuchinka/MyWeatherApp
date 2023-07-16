@@ -48,10 +48,10 @@ fun BottomNavigationWeather(
                     }
                 },
                 label = {
-                    Text(text = item.title, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
+                    Text(text = item.title, fontSize = 13.sp, color = MaterialTheme.colorScheme.inversePrimary)
                 },
                 selectedContentColor = MaterialTheme.colorScheme.onPrimary,
-                unselectedContentColor = MaterialTheme.colorScheme.onSurface
+                unselectedContentColor = MaterialTheme.colorScheme.inversePrimary
             )
         }
     }

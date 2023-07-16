@@ -49,17 +49,6 @@ class MainActivity : ComponentActivity() {
                             context = context
                         )
                     }
-//                    WeatherScreen(weatherViewModel = weatherViewModel, context = context)
-//                    LocationsList(
-//                        weatherRoomViewModel = weatherRoomViewModel,
-//                        weatherViewModel = weatherViewModel,
-//                        context = context
-//                    )
-//                    FavoritesList(
-//                        weatherRoomViewModel = weatherRoomViewModel,
-//                        weatherViewModel = weatherViewModel,
-//                        context = context
-//                    )
                 }
             }
         }

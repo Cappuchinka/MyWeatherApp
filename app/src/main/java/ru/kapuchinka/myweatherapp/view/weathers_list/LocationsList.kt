@@ -187,18 +187,32 @@ private fun GetListCities(
     context: Context
 ) {
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        items(allData.size) { city ->
-            CardItem(
-                weatherRoomViewModel = weatherRoomViewModel,
-                weatherViewModel = weatherViewModel,
-                weatherModel = allData[city],
-                context = context
+    if (allData.isEmpty()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 56.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Your Locations List is empty",
+                fontSize = 20.sp
             )
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            items(allData.size) { city ->
+                CardItem(
+                    weatherRoomViewModel = weatherRoomViewModel,
+                    weatherViewModel = weatherViewModel,
+                    weatherModel = allData[city],
+                    context = context
+                )
+            }
         }
     }
 }
