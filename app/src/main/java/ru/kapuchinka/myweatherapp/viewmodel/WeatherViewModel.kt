@@ -11,6 +11,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import ru.kapuchinka.myweatherapp.api.model.WeatherResponse
 import ru.kapuchinka.myweatherapp.repository.WeatherRepositoryRetrofit
@@ -24,6 +27,16 @@ class WeatherViewModel : ViewModel() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     @SuppressLint("StaticFieldLeak")
     private lateinit var appContext: Context
+
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading = _isLoading.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            delay(2000)
+            _isLoading.value = false
+        }
+    }
 
     fun setContext(context: Context) {
         appContext = context

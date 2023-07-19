@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import ru.kapuchinka.myweatherapp.ui.theme.MyMaterialTheme
 import ru.kapuchinka.myweatherapp.view.navigation.BottomNavigationWeather
@@ -28,6 +29,10 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val splashScreen = installSplashScreen()
+        splashScreen.setKeepVisibleCondition  {
+                weatherViewModel.isLoading.value
+        }
         weatherViewModel.setContext(this)
 
         setContent {
