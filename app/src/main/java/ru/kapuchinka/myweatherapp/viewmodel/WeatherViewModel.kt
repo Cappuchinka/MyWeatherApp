@@ -15,13 +15,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import retrofit2.Response
 import ru.kapuchinka.myweatherapp.api.model.WeatherResponse
 import ru.kapuchinka.myweatherapp.repository.WeatherRepositoryRetrofit
 
 class WeatherViewModel : ViewModel() {
     private val weatherRepositoryRetrofit = WeatherRepositoryRetrofit()
 
-    val weatherResponse = mutableStateOf<WeatherResponse?>(null)
+    val weatherResponse = mutableStateOf<Response<WeatherResponse>?>(null)
     val weatherIcon = mutableStateOf<String?>(null)
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -80,16 +81,17 @@ class WeatherViewModel : ViewModel() {
     fun getWeatherByCity(city: String) {
         viewModelScope.launch {
             weatherResponse.value = weatherRepositoryRetrofit.getWeatherByCity(city, APPID, UNITS)
-            weatherIcon.value = weatherResponse.value?.weather?.get(0)?.icon
+            weatherIcon.value = weatherResponse.value?.body()?.weather?.get(0)?.icon
         }
     }
 
     private fun getWeatherByLocation(lat: Double, lon: Double) {
         viewModelScope.launch {
             weatherResponse.value = weatherRepositoryRetrofit.getWeatherByLocation(lat, lon, APPID, UNITS)
-            Log.d("RESPONSE", weatherResponse.value!!.name)
-            weatherIcon.value = weatherResponse.value?.weather?.get(0)?.icon
+            weatherResponse.value?.body()?.name?.let { Log.d("RESPONSE", it) }
+            weatherIcon.value = weatherResponse.value?.body()?.weather?.get(0)?.icon
             Log.d("RESPONSE", weatherIcon.value!!)
+            Log.d("RESPONSE", weatherResponse.value?.code().toString())
         }
     }
 

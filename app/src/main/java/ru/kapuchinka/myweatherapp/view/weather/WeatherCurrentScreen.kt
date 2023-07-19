@@ -104,9 +104,9 @@ fun WeatherCurrentLocationScreen(weatherViewModel: WeatherViewModel, context: Co
                         verticalArrangement = Arrangement.Top,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Title(weatherResponse.name)
+                        Title(weatherResponse.body()!!.name)
                         InfoLastUpdated()
-                        GetWeatherByCurrentLocation(weatherResponse, context)
+                        GetWeatherByCurrentLocation(weatherResponse.body()!!, context)
                     }
                 } else {
                     Box(

@@ -92,7 +92,7 @@ fun ShowWeatherDialog(
 
     if (isInternetConnected.value) {
         Dialog(onDismissRequest = { onDismiss() }) {
-            if (weatherResponse != null) {
+            if (weatherResponse!!.isSuccessful) {
                 Box(
                     modifier = Modifier
                         .fillMaxHeight(0.9f)
@@ -105,25 +105,40 @@ fun ShowWeatherDialog(
                         verticalArrangement = Arrangement.Top,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        InfoLastUpdated(weatherResponse.name)
-                        GetWeatherByCity(weatherResponse, context)
+                        InfoLastUpdated(weatherResponse.body()!!.name)
+                        GetWeatherByCity(weatherResponse.body()!!, context)
                     }
                 }
             } else {
                 Box(
                     modifier = Modifier
                         .fillMaxSize(0.9f)
-                        .background(MaterialTheme.colorScheme.background),
+                        .background(
+                            color = MaterialTheme.colorScheme.background,
+                            shape = RoundedCornerShape(35.dp, 35.dp, 35.dp, 35.dp)
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator()
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(text = "${weatherResponse.code()}", fontSize = 25.sp)
+                        Text(text = weatherResponse.message(), fontSize = 20.sp)
+                    }
                 }
             }
         }
     } else {
         Dialog(onDismissRequest = { onDismiss() }) {
             Box(
-                modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        color = MaterialTheme.colorScheme.background,
+                        shape = RoundedCornerShape(35.dp, 35.dp, 35.dp, 35.dp)
+                    ),
+                contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
             }
