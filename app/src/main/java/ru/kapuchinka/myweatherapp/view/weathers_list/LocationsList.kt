@@ -43,6 +43,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.yandex.metrica.YandexMetrica
+import ru.kapuchinka.myweatherapp.utils.yandex_metrics.YandexEvents
 import ru.kapuchinka.myweatherapp.utils.db.model.WeatherModel
 import ru.kapuchinka.myweatherapp.view.weather.ShowWeatherDialog
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherRoomViewModel
@@ -250,10 +252,14 @@ private fun ThemedImageFavorite(
 
     var isFavorite by remember { mutableStateOf(weatherModel.is_favorite) }
 
-    val painter = if (isFavorite) {
-        getPainter(isDarkTheme, context, "favorite")
+    val painter: Painter
+
+    if (isFavorite) {
+        painter = getPainter(isDarkTheme, context, "favorite")
+        YandexMetrica.reportEvent(YandexEvents.ADD_TO_FAVORITES)
     } else {
-        getPainter(isDarkTheme, context, "no_favorite")
+        painter = getPainter(isDarkTheme, context, "no_favorite")
+        YandexMetrica.reportEvent(YandexEvents.REMOVE_FROM_FAVORITES)
     }
 
     val updatedPainter = rememberUpdatedState(painter)
@@ -373,6 +379,7 @@ private fun DeleteLocationImage(
         contentDescription = "trash",
         modifier = Modifier.clickable {
             weatherRoomViewModel.deleteCity(city)
+            YandexMetrica.reportEvent(YandexEvents.DELETE_LOCATION_FROM_LIST)
         }
     )
 }
@@ -441,6 +448,7 @@ private fun addLocation(weatherRoomViewModel: WeatherRoomViewModel, city: String
         Log.d("ADD_CITY", "ADD: $mCity")
         weatherRoomViewModel.insertWeather(mCity)
     }
+    YandexMetrica.reportEvent(YandexEvents.ADD_LOCATION_TO_LIST)
 }
 
 private fun checkInputCity(city: String): Boolean {

@@ -28,7 +28,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.yandex.metrica.YandexMetrica
 import ru.kapuchinka.myweatherapp.api.model.WeatherResponse
+import ru.kapuchinka.myweatherapp.utils.yandex_metrics.YandexEvents
 import ru.kapuchinka.myweatherapp.utils.receiver.NetworkChangeReceiver
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherViewModel
 import ru.kapuchinka.myweatherapp.utils.util.*
@@ -40,6 +42,7 @@ fun ShowWeatherDialog(
     context: Context,
     onDismiss: () -> Unit
 ) {
+    YandexMetrica.reportEvent(YandexEvents.GET_WEATHER_FROM_LIST)
     val isInternetConnected = remember { mutableStateOf(false) }
 
     val networkChangeReceiver = remember {
