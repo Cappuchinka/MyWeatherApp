@@ -43,4 +43,10 @@ class WeatherRoomViewModel(application: Application) : AndroidViewModel(applicat
             weatherRepositoryRoom.updateCity(isFavorite, city)
         }
     }
+
+    fun deleteCity(city: String) {
+        viewModelScope.launch {
+            weatherRepositoryRoom.deleteCity(city)
+        }
+    }
 }

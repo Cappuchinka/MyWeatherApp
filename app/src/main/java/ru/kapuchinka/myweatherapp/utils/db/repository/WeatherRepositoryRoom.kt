@@ -19,4 +19,8 @@ class WeatherRepositoryRoom(private val weatherDao: WeatherDao) {
     suspend fun updateCity(isFavorite: Boolean, city: String) {
         return weatherDao.updateCity(isFavorite, city)
     }
+
+    suspend fun deleteCity(city: String) {
+        return weatherDao.deleteCity(city)
+    }
 }

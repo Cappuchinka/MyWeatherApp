@@ -140,7 +140,6 @@ private fun CardItem(
                 ThemedImageFavorite(
                     weatherModel = weatherModel,
                     context = context,
-                    nameIcon = "favorite",
                     weatherRoomViewModel = weatherRoomViewModel
                 )
             }
@@ -202,7 +201,6 @@ private fun GetListCities(
 private fun ThemedImageFavorite(
     weatherModel: WeatherModel,
     context: Context,
-    nameIcon: String,
     weatherRoomViewModel: WeatherRoomViewModel
 ) {
     val isDarkTheme = isSystemInDarkTheme()
@@ -211,13 +209,13 @@ private fun ThemedImageFavorite(
     val painter = if (isDarkTheme) {
         painterResource(
             context.resources.getIdentifier(
-                "${nameIcon}_dark", resourceType, context.packageName
+                "favorite_dark", resourceType, context.packageName
             )
         )
     } else {
         painterResource(
             context.resources.getIdentifier(
-                "${nameIcon}_light", resourceType, context.packageName
+                "favorite_light", resourceType, context.packageName
             )
         )
     }
@@ -226,7 +224,7 @@ private fun ThemedImageFavorite(
 
     Image(
         painter = updatedPainter.value,
-        contentDescription = nameIcon,
+        contentDescription = "favorite",
         modifier = Modifier.clickable {
             weatherRoomViewModel.updateCity(false, weatherModel.city)
             Log.d("REMOVE_TO_FAVORITE", weatherModel.city)

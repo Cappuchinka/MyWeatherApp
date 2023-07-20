@@ -110,7 +110,6 @@ private fun Title(context: Context, weatherRoomViewModel: WeatherRoomViewModel) 
             ) {
                 AddLocationImage(
                     context = context,
-                    nameIcon = "plus",
                     weatherRoomViewModel = weatherRoomViewModel
                 )
             }
@@ -159,13 +158,36 @@ private fun CardItem(
                 fontSize = 30.sp,
                 color = MaterialTheme.colorScheme.onSecondaryContainer
             )
-            Box(modifier = Modifier.size(36.dp)) {
-                ThemedImageFavorite(
-                    weatherModel = weatherModel,
-                    context = context,
-                    nameIcon = "no_favorite",
-                    weatherRoomViewModel = weatherRoomViewModel
-                )
+            Box(
+                modifier = Modifier.fillMaxWidth(1f),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier.size(48.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        DeleteLocationImage(
+                            context = context,
+                            weatherRoomViewModel = weatherRoomViewModel,
+                            city = weatherModel.city
+                        )
+                    }
+                    Box(
+                        modifier = Modifier.size(38.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        ThemedImageFavorite(
+                            weatherModel = weatherModel,
+                            context = context,
+                            weatherRoomViewModel = weatherRoomViewModel
+                        )
+                    }
+                }
+
             }
         }
     }
@@ -222,25 +244,23 @@ private fun GetListCities(
 private fun ThemedImageFavorite(
     weatherModel: WeatherModel,
     context: Context,
-    nameIcon: String,
     weatherRoomViewModel: WeatherRoomViewModel
 ) {
     val isDarkTheme = isSystemInDarkTheme()
-    val resourceType = "drawable"
 
     var isFavorite by remember { mutableStateOf(weatherModel.is_favorite) }
 
     val painter = if (isFavorite) {
-        getPainter(isDarkTheme, context, "favorite", resourceType)
+        getPainter(isDarkTheme, context, "favorite")
     } else {
-        getPainter(isDarkTheme, context, "no_favorite", resourceType)
+        getPainter(isDarkTheme, context, "no_favorite")
     }
 
     val updatedPainter = rememberUpdatedState(painter)
 
     Image(
         painter = updatedPainter.value,
-        contentDescription = nameIcon,
+        contentDescription = "favorite",
         modifier = Modifier.clickable {
             if (!isFavorite) {
                 weatherRoomViewModel.updateCity(true, weatherModel.city)
@@ -254,23 +274,23 @@ private fun ThemedImageFavorite(
     )
 }
 
+@SuppressLint("DiscouragedApi")
 @Composable
 private fun getPainter(
     isDarkTheme: Boolean,
     context: Context,
     nameIcon: String,
-    resourceType: String
 ): Painter {
     return if (isDarkTheme) {
         painterResource(
             context.resources.getIdentifier(
-                "${nameIcon}_dark", resourceType, context.packageName
+                "${nameIcon}_dark", "drawable", context.packageName
             )
         )
     } else {
         painterResource(
             context.resources.getIdentifier(
-                "${nameIcon}_light", resourceType, context.packageName
+                "${nameIcon}_light", "drawable", context.packageName
             )
         )
     }
@@ -280,7 +300,6 @@ private fun getPainter(
 @Composable
 private fun AddLocationImage(
     context: Context,
-    nameIcon: String,
     weatherRoomViewModel: WeatherRoomViewModel
 ) {
     val isDarkTheme = isSystemInDarkTheme()
@@ -299,20 +318,20 @@ private fun AddLocationImage(
     val painter = if (isDarkTheme) {
         painterResource(
             context.resources.getIdentifier(
-                "${nameIcon}_dark", resourceType, context.packageName
+                "plus_dark", resourceType, context.packageName
             )
         )
     } else {
         painterResource(
             context.resources.getIdentifier(
-                "${nameIcon}_light", resourceType, context.packageName
+                "plus_light", resourceType, context.packageName
             )
         )
     }
 
     Image(
         painter = painter,
-        contentDescription = nameIcon,
+        contentDescription = "plus",
         modifier = Modifier.clickable {
             openDialog()
         }
@@ -323,6 +342,39 @@ private fun AddLocationImage(
             weatherRoomViewModel = weatherRoomViewModel,
             onDismiss = { closeDialog() })
     }
+}
+
+@SuppressLint("DiscouragedApi")
+@Composable
+private fun DeleteLocationImage(
+    context: Context,
+    weatherRoomViewModel: WeatherRoomViewModel,
+    city: String
+) {
+    val isDarkTheme = isSystemInDarkTheme()
+    val resourceType = "drawable"
+
+    val painter = if (isDarkTheme) {
+        painterResource(
+            context.resources.getIdentifier(
+                "trash_dark", resourceType, context.packageName
+            )
+        )
+    } else {
+        painterResource(
+            context.resources.getIdentifier(
+                "trash_light", resourceType, context.packageName
+            )
+        )
+    }
+
+    Image(
+        painter = painter,
+        contentDescription = "trash",
+        modifier = Modifier.clickable {
+            weatherRoomViewModel.deleteCity(city)
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
