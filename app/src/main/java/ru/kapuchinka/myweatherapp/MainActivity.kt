@@ -19,11 +19,13 @@ import com.yandex.metrica.YandexMetricaConfig
 import ru.kapuchinka.myweatherapp.ui.theme.MyMaterialTheme
 import ru.kapuchinka.myweatherapp.view.navigation.BottomNavigationWeather
 import ru.kapuchinka.myweatherapp.view.navigation.NavGraph
+import ru.kapuchinka.myweatherapp.viewmodel.WeatherDialogViewModel
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherRoomViewModel
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherViewModel
 
 class MainActivity : ComponentActivity() {
     private val weatherViewModel: WeatherViewModel by viewModels()
+    private val weatherDialogViewModel: WeatherDialogViewModel by viewModels()
     private val weatherRoomViewModel: WeatherRoomViewModel by viewModels()
     private val context: Context = this
 
@@ -59,6 +61,7 @@ class MainActivity : ComponentActivity() {
                         NavGraph(
                             navHostController = navController,
                             weatherViewModel = weatherViewModel,
+                            weatherDialogViewModel = weatherDialogViewModel,
                             weatherRoomViewModel = weatherRoomViewModel,
                             context = context
                         )

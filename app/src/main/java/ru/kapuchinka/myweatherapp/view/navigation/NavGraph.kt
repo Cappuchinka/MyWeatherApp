@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import ru.kapuchinka.myweatherapp.view.weather.WeatherCurrentLocationScreen
 import ru.kapuchinka.myweatherapp.view.weathers_list.FavoritesList
 import ru.kapuchinka.myweatherapp.view.weathers_list.LocationsList
+import ru.kapuchinka.myweatherapp.viewmodel.WeatherDialogViewModel
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherRoomViewModel
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherViewModel
 
@@ -15,6 +16,7 @@ import ru.kapuchinka.myweatherapp.viewmodel.WeatherViewModel
 fun NavGraph(
     navHostController: NavHostController,
     weatherViewModel: WeatherViewModel,
+    weatherDialogViewModel: WeatherDialogViewModel,
     weatherRoomViewModel: WeatherRoomViewModel,
     context: Context
 ) {
@@ -28,14 +30,14 @@ fun NavGraph(
         composable("locations") {
             LocationsList(
                 weatherRoomViewModel = weatherRoomViewModel,
-                weatherViewModel = weatherViewModel,
+                weatherDialogViewModel = weatherDialogViewModel,
                 context = context
             )
         }
         composable("favorites") {
             FavoritesList(
                 weatherRoomViewModel = weatherRoomViewModel,
-                weatherViewModel = weatherViewModel,
+                weatherDialogViewModel = weatherDialogViewModel,
                 context = context
             )
         }

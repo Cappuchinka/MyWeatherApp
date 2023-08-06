@@ -11,60 +11,51 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import ru.kapuchinka.myweatherapp.utils.db.model.WeatherModel
 import ru.kapuchinka.myweatherapp.view.weather.ShowWeatherDialog
+import ru.kapuchinka.myweatherapp.viewmodel.WeatherDialogViewModel
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherRoomViewModel
-import ru.kapuchinka.myweatherapp.viewmodel.WeatherViewModel
 
 @Composable
 fun FavoritesList(
     weatherRoomViewModel: WeatherRoomViewModel,
-    weatherViewModel: WeatherViewModel,
+    weatherDialogViewModel: WeatherDialogViewModel,
     context: Context
 ) {
     Column(modifier = Modifier.padding(bottom = 56.dp)) {
-        Title(context = context, weatherRoomViewModel = weatherRoomViewModel)
+        Title()
         GetListCities(
             weatherRoomViewModel = weatherRoomViewModel,
-            weatherViewModel = weatherViewModel,
+            weatherDialogViewModel = weatherDialogViewModel,
             context = context
         )
     }
 }
 
 @Composable
-private fun Title(context: Context, weatherRoomViewModel: WeatherRoomViewModel) {
+private fun Title() {
     Box(
         modifier = Modifier
             .fillMaxHeight(0.09f)
@@ -99,7 +90,7 @@ private fun Title(context: Context, weatherRoomViewModel: WeatherRoomViewModel) 
 @Composable
 private fun CardItem(
     weatherRoomViewModel: WeatherRoomViewModel,
-    weatherViewModel: WeatherViewModel,
+    weatherDialogViewModel: WeatherDialogViewModel,
     weatherModel: WeatherModel,
     context: Context
 ) {
@@ -149,7 +140,7 @@ private fun CardItem(
     if (showDialog.value) {
         ShowWeatherDialog(
             city = selectedCity.value,
-            weatherViewModel = weatherViewModel,
+            weatherDialogViewModel = weatherDialogViewModel,
             context = context,
             onDismiss = { closeDialog() })
     }
@@ -158,7 +149,7 @@ private fun CardItem(
 @Composable
 private fun GetListCities(
     weatherRoomViewModel: WeatherRoomViewModel,
-    weatherViewModel: WeatherViewModel,
+    weatherDialogViewModel: WeatherDialogViewModel,
     context: Context
 ) {
 
@@ -187,7 +178,7 @@ private fun GetListCities(
             items(favoritesLocations.size) { city ->
                 CardItem(
                     weatherRoomViewModel = weatherRoomViewModel,
-                    weatherViewModel = weatherViewModel,
+                    weatherDialogViewModel = weatherDialogViewModel,
                     weatherModel = favoritesLocations[city],
                     context = context
                 )

@@ -31,9 +31,9 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.yandex.metrica.YandexMetrica
 import ru.kapuchinka.myweatherapp.api.model.WeatherResponse
-import ru.kapuchinka.myweatherapp.utils.yandex_metrics.YandexEvents
 import ru.kapuchinka.myweatherapp.utils.receiver.NetworkChangeReceiver
 import ru.kapuchinka.myweatherapp.utils.util.*
+import ru.kapuchinka.myweatherapp.utils.yandex_metrics.YandexEvents
 import ru.kapuchinka.myweatherapp.view.permission.RequestPermission
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherViewModel
 

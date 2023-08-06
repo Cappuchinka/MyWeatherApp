@@ -78,13 +78,6 @@ class WeatherViewModel : ViewModel() {
         return true
     }
 
-    fun getWeatherByCity(city: String) {
-        viewModelScope.launch {
-            weatherResponse.value = weatherRepositoryRetrofit.getWeatherByCity(city, APPID, UNITS)
-            weatherIcon.value = weatherResponse.value?.body()?.weather?.get(0)?.icon
-        }
-    }
-
     private fun getWeatherByLocation(lat: Double, lon: Double) {
         viewModelScope.launch {
             weatherResponse.value = weatherRepositoryRetrofit.getWeatherByLocation(lat, lon, APPID, UNITS)

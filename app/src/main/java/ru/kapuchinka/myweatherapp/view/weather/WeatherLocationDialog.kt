@@ -30,15 +30,19 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.yandex.metrica.YandexMetrica
 import ru.kapuchinka.myweatherapp.api.model.WeatherResponse
-import ru.kapuchinka.myweatherapp.utils.yandex_metrics.YandexEvents
 import ru.kapuchinka.myweatherapp.utils.receiver.NetworkChangeReceiver
-import ru.kapuchinka.myweatherapp.viewmodel.WeatherViewModel
-import ru.kapuchinka.myweatherapp.utils.util.*
+import ru.kapuchinka.myweatherapp.utils.util.LoadImageWithCache
+import ru.kapuchinka.myweatherapp.utils.util.ThemedImage
+import ru.kapuchinka.myweatherapp.utils.util.getDate
+import ru.kapuchinka.myweatherapp.utils.util.getTime
+import ru.kapuchinka.myweatherapp.utils.util.isInternetConnected
+import ru.kapuchinka.myweatherapp.utils.yandex_metrics.YandexEvents
+import ru.kapuchinka.myweatherapp.viewmodel.WeatherDialogViewModel
 
 @Composable
 fun ShowWeatherDialog(
     city: String,
-    weatherViewModel: WeatherViewModel,
+    weatherDialogViewModel: WeatherDialogViewModel,
     context: Context,
     onDismiss: () -> Unit
 ) {
@@ -49,12 +53,12 @@ fun ShowWeatherDialog(
         NetworkChangeReceiver { isConnected ->
             isInternetConnected.value = isConnected
             if (isConnected) {
-                weatherViewModel.getWeatherByCity(city)
+                weatherDialogViewModel.getWeatherByCity(city)
             }
         }
     }
 
-    DisposableEffect(Unit) {
+    DisposableEffect(context) {
         val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
         context.registerReceiver(networkChangeReceiver, filter)
 
@@ -63,19 +67,18 @@ fun ShowWeatherDialog(
         }
     }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(context) {
         isInternetConnected.value = isInternetConnected(context)
         if (isInternetConnected.value) {
-            weatherViewModel.setContext(context)
-            weatherViewModel.getWeatherByCity(city)
+            weatherDialogViewModel.getWeatherByCity(city)
         }
     }
 
-    val weatherResponse = weatherViewModel.weatherResponse.value
+    val weatherResponse = weatherDialogViewModel.weatherResponse.value
 
     if (isInternetConnected.value) {
         Dialog(onDismissRequest = { onDismiss() }) {
-            if (weatherResponse!!.isSuccessful) {
+            if (weatherResponse?.isSuccessful == true) {
                 Box(
                     modifier = Modifier
                         .fillMaxHeight(0.9f)
@@ -106,8 +109,8 @@ fun ShowWeatherDialog(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(text = "${weatherResponse.code()}", fontSize = 25.sp)
-                        Text(text = weatherResponse.message(), fontSize = 20.sp)
+                        Text(text = "${weatherResponse?.code()}", fontSize = 25.sp)
+                        Text(text = "${weatherResponse?.message()}", fontSize = 20.sp)
                     }
                 }
             }

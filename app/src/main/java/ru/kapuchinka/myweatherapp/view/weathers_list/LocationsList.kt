@@ -47,13 +47,13 @@ import com.yandex.metrica.YandexMetrica
 import ru.kapuchinka.myweatherapp.utils.yandex_metrics.YandexEvents
 import ru.kapuchinka.myweatherapp.utils.db.model.WeatherModel
 import ru.kapuchinka.myweatherapp.view.weather.ShowWeatherDialog
+import ru.kapuchinka.myweatherapp.viewmodel.WeatherDialogViewModel
 import ru.kapuchinka.myweatherapp.viewmodel.WeatherRoomViewModel
-import ru.kapuchinka.myweatherapp.viewmodel.WeatherViewModel
 
 @Composable
 fun LocationsList(
     weatherRoomViewModel: WeatherRoomViewModel,
-    weatherViewModel: WeatherViewModel,
+    weatherDialogViewModel: WeatherDialogViewModel,
     context: Context
 ) {
 
@@ -64,7 +64,7 @@ fun LocationsList(
         GetListCities(
             allData = allData,
             weatherRoomViewModel = weatherRoomViewModel,
-            weatherViewModel = weatherViewModel,
+            weatherDialogViewModel = weatherDialogViewModel,
             context = context
         )
     }
@@ -122,7 +122,7 @@ private fun Title(context: Context, weatherRoomViewModel: WeatherRoomViewModel) 
 @Composable
 private fun CardItem(
     weatherRoomViewModel: WeatherRoomViewModel,
-    weatherViewModel: WeatherViewModel,
+    weatherDialogViewModel: WeatherDialogViewModel,
     weatherModel: WeatherModel,
     context: Context
 ) {
@@ -197,7 +197,7 @@ private fun CardItem(
     if (showDialog.value) {
         ShowWeatherDialog(
             city = selectedCity.value,
-            weatherViewModel = weatherViewModel,
+            weatherDialogViewModel = weatherDialogViewModel,
             context = context,
             onDismiss = { closeDialog() })
     }
@@ -207,7 +207,7 @@ private fun CardItem(
 private fun GetListCities(
     allData: List<WeatherModel>,
     weatherRoomViewModel: WeatherRoomViewModel,
-    weatherViewModel: WeatherViewModel,
+    weatherDialogViewModel: WeatherDialogViewModel,
     context: Context
 ) {
 
@@ -232,7 +232,7 @@ private fun GetListCities(
             items(allData.size) { city ->
                 CardItem(
                     weatherRoomViewModel = weatherRoomViewModel,
-                    weatherViewModel = weatherViewModel,
+                    weatherDialogViewModel = weatherDialogViewModel,
                     weatherModel = allData[city],
                     context = context
                 )
